@@ -1,0 +1,266 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Tesla Lviv — кошик і оформлення (референс)</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Unbounded:wght@300;400;500;600;700&family=Onest:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --n0:#fff;--n50:#f7f8fa;--n100:#eef0f3;--n200:#dfe3e8;--n300:#c4cad2;--n400:#9aa3ad;
+    --n500:#6b7480;--n600:#4a525c;--n700:#333a42;--n800:#20262c;--n900:#13171b;--n950:#0c0f12;
+    --a50:#FFFBEB;--a400:#FBBF24;--a500:#F59E0B;--a600:#D97706;--a700:#B45309;
+    --ok:#16a34a;--sale:#dc2626;
+    --bg:var(--n50);--surface:var(--n0);--surface2:var(--n100);--border:var(--n200);
+    --text:var(--n900);--muted:var(--n500);
+    --accent:var(--a500);--accent-hover:var(--a600);--accent-ink:#231300;--accent-text:var(--a700);
+    --container:1240px;--gutter:24px;
+  }
+  [data-theme="dark"]{
+    --bg:var(--n950);--surface:var(--n900);--surface2:var(--n800);--border:var(--n700);
+    --text:var(--n50);--muted:var(--n400);--ok:#22c55e;--sale:#f87171;
+    --accent-hover:var(--a400);--accent-text:var(--a400);
+  }
+  *{box-sizing:border-box}
+  body{margin:0;font-family:'Onest',-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Arial,sans-serif;
+    background:var(--bg);color:var(--text);-webkit-font-smoothing:antialiased;transition:background .25s,color .25s}
+  a{color:inherit;text-decoration:none}
+  .container{max-width:var(--container);margin:0 auto;padding-left:var(--gutter);padding-right:var(--gutter)}
+  .btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;border:none;border-radius:11px;
+    padding:0 22px;height:50px;font-family:inherit;font-size:15px;font-weight:700;cursor:pointer;transition:background .15s,transform .15s}
+  .btn.primary{background:var(--accent);color:var(--accent-ink)}
+  .btn.primary:hover{background:var(--accent-hover);transform:translateY(-1px)}
+  .btn.ghost{border:1px solid var(--border);color:var(--text);background:transparent}
+  .btn.ghost:hover{background:var(--surface2)}
+  .btn.block{width:100%}
+
+  .hdr{position:sticky;top:0;z-index:20;background:var(--surface);border-bottom:1px solid var(--border)}
+  .hdr-inner{display:flex;align-items:center;gap:20px;padding-top:14px;padding-bottom:14px}
+  .logo{display:inline-flex;align-items:center}.logo img{height:34px;width:auto;display:block}
+  [data-theme="dark"] .logo img{filter:brightness(0) invert(1)}
+  .nav{display:flex;gap:18px;font-size:14px}.nav a{font-weight:500}
+  .search{flex:1;max-width:420px;margin:0 auto;display:flex;align-items:center;gap:8px;background:var(--surface2);
+    border:1px solid var(--border);border-radius:10px;padding:9px 14px;color:var(--muted);font-size:13px}
+  .hdr .right{display:flex;align-items:center;gap:12px}
+  .icon{width:38px;height:38px;border-radius:10px;border:1px solid var(--border);background:var(--surface);display:flex;align-items:center;justify-content:center;cursor:pointer;position:relative}
+  .cartdot{position:absolute;top:-6px;right:-6px;background:var(--accent);color:var(--accent-ink);font-size:10px;font-weight:800;border-radius:999px;min-width:18px;height:18px;display:flex;align-items:center;justify-content:center;padding:0 4px}
+  .toggle{cursor:pointer;border:1px solid var(--border);background:var(--surface);color:var(--text);border-radius:999px;padding:9px 14px;font-size:13px}
+
+  /* Steps switch */
+  .steps{display:flex;gap:8px;margin:24px 0 6px}
+  .step{border:1px solid var(--border);background:var(--surface);color:var(--muted);border-radius:999px;padding:9px 18px;font-size:14px;font-weight:600;cursor:pointer;font-family:inherit}
+  .step.on{background:var(--accent);border-color:var(--accent);color:var(--accent-ink)}
+  h1{font-size:28px;margin:18px 0 22px;font-weight:700;letter-spacing:-.01em}
+
+  .grid{display:grid;grid-template-columns:1fr 380px;gap:28px;padding-bottom:60px}
+  @media(max-width:880px){.grid{grid-template-columns:1fr}}
+
+  /* Cart items */
+  .items{background:var(--surface);border:1px solid var(--border);border-radius:16px;overflow:hidden}
+  .item{display:grid;grid-template-columns:96px 1fr auto;gap:16px;padding:18px;border-bottom:1px solid var(--border);align-items:center}
+  .item:last-child{border-bottom:none}
+  .item .ph{width:96px;height:96px;border-radius:12px;background:linear-gradient(135deg,var(--n100),var(--n200));display:flex;align-items:center;justify-content:center;color:var(--n400);font-size:11px}
+  [data-theme="dark"] .item .ph{background:linear-gradient(135deg,var(--n800),var(--n700))}
+  .item .nm{font-size:15px;font-weight:600;line-height:1.35;margin-bottom:6px}
+  .item .sku{font-size:12px;color:var(--muted);font-family:ui-monospace,Menlo,monospace}
+  .item .badge{display:inline-block;font-size:10px;font-weight:800;padding:2px 7px;border-radius:5px;background:var(--accent);color:var(--accent-ink);margin-top:8px}
+  .item .right{display:flex;flex-direction:column;align-items:flex-end;gap:10px}
+  .qty{display:inline-flex;align-items:center;border:1px solid var(--border);border-radius:10px;overflow:hidden}
+  .qty button{width:36px;height:40px;border:none;background:transparent;color:var(--text);font-size:16px;cursor:pointer}
+  .qty input{width:40px;height:40px;border:none;text-align:center;background:transparent;color:var(--text);font-size:15px;font-weight:600}
+  .item .pr{font-size:18px;font-weight:800;white-space:nowrap}
+  .item .old{font-size:12px;color:var(--muted);text-decoration:line-through;margin-left:6px;font-weight:400}
+  .item .del{background:none;border:none;color:var(--muted);cursor:pointer;font-size:13px}
+  .item .del:hover{color:var(--sale)}
+  .cartfoot{display:flex;justify-content:space-between;align-items:center;margin-top:16px}
+  .cartfoot a{color:var(--accent-text);font-weight:600;font-size:14px}
+
+  /* Summary */
+  .summary{align-self:start;position:sticky;top:84px;background:var(--surface);border:1px solid var(--border);border-radius:16px;padding:22px}
+  .summary h3{margin:0 0 16px;font-size:18px;font-weight:700}
+  .sline{display:flex;justify-content:space-between;font-size:14px;margin:11px 0;color:var(--muted)}
+  .sline b{color:var(--text);font-weight:600}
+  .sline.disc b{color:var(--sale)}
+  .stotal{display:flex;justify-content:space-between;align-items:baseline;border-top:1px solid var(--border);margin-top:16px;padding-top:16px}
+  .stotal .l{font-size:15px;font-weight:600}.stotal .v{font-size:26px;font-weight:800}
+  .promo{display:flex;gap:8px;margin:16px 0}
+  .promo input{flex:1;border:1px solid var(--border);border-radius:10px;padding:11px 13px;background:var(--surface);color:var(--text);font-family:inherit;font-size:13px}
+  .promo button{border:1px solid var(--border);background:var(--surface2);color:var(--text);border-radius:10px;padding:0 16px;font-weight:600;cursor:pointer;font-family:inherit;font-size:13px}
+  .note{font-size:12px;color:var(--muted);margin-top:12px;line-height:1.5}
+
+  /* Checkout form */
+  .block{background:var(--surface);border:1px solid var(--border);border-radius:16px;padding:22px;margin-bottom:18px}
+  .block h3{margin:0 0 16px;font-size:17px;font-weight:700;display:flex;align-items:center;gap:10px}
+  .block .num{width:26px;height:26px;border-radius:50%;background:var(--accent);color:var(--accent-ink);display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:800}
+  .frow{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+  .field{display:flex;flex-direction:column;gap:6px;margin-bottom:12px}
+  .field.full{grid-column:1/-1}
+  .field label{font-size:12px;color:var(--muted);font-weight:600}
+  .field input,.field select{border:1px solid var(--border);border-radius:11px;padding:13px 14px;background:var(--surface);color:var(--text);font-family:inherit;font-size:14px}
+  .field input:focus,.field select:focus{outline:none;border-color:var(--accent)}
+  .opt{display:flex;align-items:center;gap:12px;border:1px solid var(--border);border-radius:12px;padding:14px 16px;cursor:pointer;margin-bottom:10px}
+  .opt.on{border-color:var(--accent);background:var(--a50)}
+  [data-theme="dark"] .opt.on{background:#2a1d05}
+  .opt .radio{width:20px;height:20px;border-radius:50%;border:2px solid var(--n400);flex:0 0 auto;position:relative}
+  .opt.on .radio{border-color:var(--accent)}.opt.on .radio::after{content:"";position:absolute;inset:4px;border-radius:50%;background:var(--accent)}
+  .opt .t{font-weight:600;font-size:14px}.opt .d{font-size:12px;color:var(--muted)}
+  .opt .price{margin-left:auto;font-weight:700;font-size:14px}
+
+  /* Empty */
+  .empty{display:none;text-align:center;padding:70px 20px;background:var(--surface);border:1px solid var(--border);border-radius:16px}
+  .empty .ic{font-size:48px;margin-bottom:14px}
+  .empty h2{margin:0 0 8px;font-size:22px}.empty p{color:var(--muted);margin:0 0 22px}
+  body.is-empty .cart-main{display:none}
+  body.is-empty .empty{display:block}
+  body.checkout .view-cart{display:none}
+  body:not(.checkout) .view-checkout{display:none}
+
+  .devnote{padding:0 0 50px;color:var(--muted);font-size:12px;line-height:1.6}
+  .devnote code{background:var(--surface2);padding:2px 6px;border-radius:4px}
+</style>
+</head>
+<body data-theme="light">
+  <header class="hdr"><div class="hdr-inner container">
+    <a class="logo" href="#"><img src="logo.png" alt="Tesla Spare Parts Lviv"></a>
+    <nav class="nav"><a>Магазин</a><a>Про нас</a><a>Контакти</a></nav>
+    <div class="search">🔍 Пошук за назвою або артикулом…</div>
+    <div class="right">
+      <button class="toggle" onclick="t()">◐ Тема</button>
+      <div class="icon">♡</div>
+      <div class="icon">🛒<span class="cartdot">3</span></div>
+    </div>
+  </div></header>
+
+  <div class="container">
+    <div class="steps">
+      <button class="step on" onclick="setView('cart',this)">1 · Кошик</button>
+      <button class="step" onclick="setView('checkout',this)">2 · Оформлення</button>
+      <button class="step" style="margin-left:auto" onclick="document.body.classList.toggle('is-empty')">⟲ Порожній стан</button>
+    </div>
+
+    <!-- ===== КОШИК (P7, FR-5) ===== -->
+    <div class="view-cart">
+      <h1>Кошик</h1>
+      <div class="cart-main grid">
+        <div>
+          <div class="items" id="items"></div>
+          <div class="cartfoot">
+            <a href="#">← Продовжити покупки</a>
+            <a href="#">🗑 Очистити кошик</a>
+          </div>
+        </div>
+        <aside class="summary">
+          <h3>Разом</h3>
+          <div class="sline">Товари (3 шт) <b>9 740 ₴</b></div>
+          <div class="sline disc">Знижка <b>−540 ₴</b></div>
+          <div class="sline">Доставка <b>за тарифом перевізника</b></div>
+          <div class="promo"><input placeholder="Промокод"><button>Застосувати</button></div>
+          <div class="stotal"><span class="l">До сплати</span><span class="v">9 200 ₴</span></div>
+          <button class="btn primary block" style="margin-top:18px" onclick="setView('checkout')">Оформити замовлення →</button>
+          <div class="note">🔒 Безпечне оформлення. Можна без реєстрації.</div>
+        </aside>
+      </div>
+
+      <!-- Порожній стан (FR-5.5) -->
+      <div class="empty">
+        <div class="ic">🛒</div>
+        <h2>Ваш кошик порожній</h2>
+        <p>Оберіть деталі в каталозі — і вони з'являться тут.</p>
+        <button class="btn primary">Перейти в каталог</button>
+      </div>
+    </div>
+
+    <!-- ===== ОФОРМЛЕННЯ (P8, FR-6) ===== -->
+    <div class="view-checkout">
+      <h1>Оформлення замовлення</h1>
+      <div class="grid">
+        <div>
+          <div class="block">
+            <h3><span class="num">1</span> Контактні дані</h3>
+            <div class="frow">
+              <div class="field full"><label>ПІБ</label><input placeholder="Прізвище Ім'я По батькові"></div>
+              <div class="field"><label>Телефон</label><input placeholder="+380"></div>
+              <div class="field"><label>Email</label><input placeholder="you@example.com"></div>
+            </div>
+            <div class="note">Оформлення доступне без реєстрації (гостьовий checkout).</div>
+          </div>
+
+          <div class="block">
+            <h3><span class="num">2</span> Доставка</h3>
+            <label class="opt on"><span class="radio"></span><span><span class="t">Нова Пошта</span><br><span class="d">Відділення / поштомат · 1–2 дні</span></span><span class="price">за тарифом</span></label>
+            <label class="opt"><span class="radio"></span><span><span class="t">Укрпошта</span><br><span class="d">Відділення · 2–4 дні</span></span><span class="price">за тарифом</span></label>
+            <div class="frow" style="margin-top:6px">
+              <div class="field"><label>Місто</label><select><option>Львів</option><option>Київ</option><option>Одеса</option></select></div>
+              <div class="field"><label>Відділення</label><select><option>№1 (вул. Городоцька, 1)</option><option>№35</option><option>Поштомат №1027</option></select></div>
+            </div>
+          </div>
+
+          <div class="block">
+            <h3><span class="num">3</span> Оплата</h3>
+            <label class="opt on"><span class="radio"></span><span><span class="t">Картка онлайн</span><br><span class="d">Visa / Mastercard · безпечний еквайринг</span></span></label>
+            <label class="opt"><span class="radio"></span><span><span class="t">Накладений платіж</span><br><span class="d">Оплата при отриманні</span></span></label>
+          </div>
+
+          <div class="block">
+            <h3><span class="num">4</span> Коментар</h3>
+            <div class="field full"><input placeholder="Коментар до замовлення (необов'язково)"></div>
+          </div>
+        </div>
+
+        <aside class="summary">
+          <h3>Ваше замовлення</h3>
+          <div class="sline">Амортизатор капота ×1 <b>1 150 ₴</b></div>
+          <div class="sline">Колісний диск R18 ×1 <b>6 200 ₴</b></div>
+          <div class="sline">Клаксон 400/500 Hz ×2 <b>1 380 ₴</b></div>
+          <div class="sline disc">Знижка <b>−540 ₴</b></div>
+          <div class="sline">Доставка <b>за тарифом перевізника</b></div>
+          <div class="stotal"><span class="l">До сплати</span><span class="v">9 200 ₴</span></div>
+          <button class="btn primary block" style="margin-top:18px">Підтвердити замовлення</button>
+          <div class="note">Натискаючи, ви погоджуєтесь з умовами оферти. Після оплати — лист на email і статус замовлення.</div>
+        </aside>
+      </div>
+    </div>
+
+    <p class="devnote">
+      Референс кошика й оформлення за FRD §3.6–3.7. Кошик: позиції з фото/артикулом/кількістю/видаленням (FR-5.1),
+      підсумок зі знижками (FR-5.2), «Оформити» (FR-5.3), порожній стан (FR-5.5).
+      Checkout: контакти (FR-6.1), доставка НП/Укрпошта + місто/відділення (FR-6.2, інтеграція API НП),
+      оплата онлайн/накладений (FR-6.3), гостьовий checkout (FR-6.4), підтвердження → email/статус (FR-6.5).
+      Перемикач «Порожній стан» — демонстрація FR-5.5. <code>localStorage</code> для гостя + БД для авторизованого (FR-5.4).
+    </p>
+  </div>
+
+<script>
+  const items=[
+    ['Амортизатор капота Tesla Model 3 Highland 2024-','1645989-00-A','1 150','1 495',1,'Оригінал'],
+    ['Колісний диск R18 8.5J Model 3 Highland','H3327F','6 200','',1,'Аналог'],
+    ['Клаксон (сигнал) 400/500 Hz Model 3/Y','1716494-00-A','690','',2,'Оригінал'],
+  ];
+  document.getElementById('items').innerHTML=items.map(([n,s,p,o,q,tp])=>`
+    <div class="item">
+      <div class="ph">фото</div>
+      <div>
+        <div class="nm">${n}</div>
+        <div class="sku">Артикул: ${s}</div>
+        <span class="badge">${tp}</span>
+      </div>
+      <div class="right">
+        <div class="pr">${p} ₴${o?`<span class="old">${o} ₴</span>`:''}</div>
+        <div class="qty"><button>−</button><input value="${q}"><button>+</button></div>
+        <button class="del">✕ Видалити</button>
+      </div>
+    </div>`).join('');
+
+  function setView(v,el){
+    document.body.classList.toggle('checkout', v==='checkout');
+    document.querySelectorAll('.step').forEach(s=>s.classList.remove('on'));
+    const steps=document.querySelectorAll('.step');
+    if(v==='cart')steps[0].classList.add('on'); else steps[1].classList.add('on');
+    scrollTo({top:0});
+  }
+  function t(){const b=document.body;b.dataset.theme=b.dataset.theme==='light'?'dark':'light'}
+</script>
+</body>
+</html>
