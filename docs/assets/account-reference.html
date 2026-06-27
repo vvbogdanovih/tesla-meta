@@ -1,0 +1,261 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Tesla Lviv — особистий кабінет (референс)</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Unbounded:wght@300;400;500;600;700&family=Onest:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --n0:#fff;--n50:#f7f8fa;--n100:#eef0f3;--n200:#dfe3e8;--n300:#c4cad2;--n400:#9aa3ad;
+    --n500:#6b7480;--n600:#4a525c;--n700:#333a42;--n800:#20262c;--n900:#13171b;--n950:#0c0f12;
+    --a50:#FFFBEB;--a400:#FBBF24;--a500:#F59E0B;--a600:#D97706;--a700:#B45309;
+    --ok:#16a34a;--sale:#dc2626;--info:#0a84ff;
+    --bg:var(--n50);--surface:var(--n0);--surface2:var(--n100);--border:var(--n200);
+    --text:var(--n900);--muted:var(--n500);
+    --accent:var(--a500);--accent-hover:var(--a600);--accent-ink:#231300;--accent-text:var(--a700);
+    --container:1240px;--gutter:24px;
+  }
+  [data-theme="dark"]{
+    --bg:var(--n950);--surface:var(--n900);--surface2:var(--n800);--border:var(--n700);
+    --text:var(--n50);--muted:var(--n400);--ok:#22c55e;--sale:#f87171;--info:#3b9eff;
+    --accent-hover:var(--a400);--accent-text:var(--a400);
+  }
+  *{box-sizing:border-box}
+  body{margin:0;font-family:'Onest',-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Arial,sans-serif;
+    background:var(--bg);color:var(--text);-webkit-font-smoothing:antialiased;transition:background .25s,color .25s}
+  a{color:inherit;text-decoration:none}
+  .container{max-width:var(--container);margin:0 auto;padding-left:var(--gutter);padding-right:var(--gutter)}
+  .btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;border:none;border-radius:11px;
+    padding:0 22px;height:48px;font-family:inherit;font-size:15px;font-weight:700;cursor:pointer;transition:background .15s,transform .15s}
+  .btn.primary{background:var(--accent);color:var(--accent-ink)}
+  .btn.primary:hover{background:var(--accent-hover);transform:translateY(-1px)}
+  .btn.ghost{border:1px solid var(--border);color:var(--text);background:transparent}
+  .btn.ghost:hover{background:var(--surface2)}
+  .btn.block{width:100%}
+
+  .hdr{position:sticky;top:0;z-index:20;background:var(--surface);border-bottom:1px solid var(--border)}
+  .hdr-inner{display:flex;align-items:center;gap:20px;padding-top:14px;padding-bottom:14px}
+  .logo{display:inline-flex;align-items:center}.logo img{height:34px;width:auto;display:block}
+  [data-theme="dark"] .logo img{filter:brightness(0) invert(1)}
+  .nav{display:flex;gap:18px;font-size:14px}.nav a{font-weight:500}
+  .search{flex:1;max-width:420px;margin:0 auto;display:flex;align-items:center;gap:8px;background:var(--surface2);border:1px solid var(--border);border-radius:10px;padding:9px 14px;color:var(--muted);font-size:13px}
+  .hdr .right{display:flex;align-items:center;gap:12px}
+  .icon{width:38px;height:38px;border-radius:10px;border:1px solid var(--border);background:var(--surface);display:flex;align-items:center;justify-content:center;cursor:pointer;position:relative}
+  .cartdot{position:absolute;top:-6px;right:-6px;background:var(--accent);color:var(--accent-ink);font-size:10px;font-weight:800;border-radius:999px;min-width:18px;height:18px;display:flex;align-items:center;justify-content:center;padding:0 4px}
+  .toggle{cursor:pointer;border:1px solid var(--border);background:var(--surface);color:var(--text);border-radius:999px;padding:9px 14px;font-size:13px}
+  .burger{display:none;width:38px;height:38px;border-radius:10px;border:1px solid var(--border);background:var(--surface);color:var(--text);font-size:18px;cursor:pointer;align-items:center;justify-content:center}
+  .backdrop{position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:40;opacity:0;visibility:hidden;transition:.2s}.backdrop.show{opacity:1;visibility:visible}
+  .mmenu{position:fixed;top:0;right:0;height:100%;width:84%;max-width:340px;background:var(--surface);z-index:50;transform:translateX(100%);transition:transform .25s;padding:20px;display:flex;flex-direction:column;gap:6px;overflow:auto}
+  .mmenu.open{transform:none}.mmenu .mhead{display:flex;justify-content:space-between;align-items:center;margin-bottom:10px}
+  .mmenu .close{border:none;background:transparent;color:var(--text);font-size:22px;cursor:pointer}
+  .mmenu a{font-size:16px;padding:13px 6px;border-bottom:1px solid var(--border);font-weight:500}
+
+  .steps{display:flex;gap:8px;margin:24px 0}
+  .step{border:1px solid var(--border);background:var(--surface);color:var(--muted);border-radius:999px;padding:9px 18px;font-size:14px;font-weight:600;cursor:pointer;font-family:inherit}
+  .step.on{background:var(--accent);border-color:var(--accent);color:var(--accent-ink)}
+  body.acc .view-auth{display:none}body:not(.acc) .view-account{display:none}
+
+  /* Auth */
+  .auth{max-width:420px;margin:30px auto 70px;background:var(--surface);border:1px solid var(--border);border-radius:18px;padding:28px}
+  .auth h1{font-size:24px;margin:0 0 4px;font-weight:700;text-align:center}
+  .auth .sub{text-align:center;color:var(--muted);font-size:14px;margin-bottom:22px}
+  .authtabs{display:flex;background:var(--surface2);border-radius:12px;padding:4px;margin-bottom:20px}
+  .authtabs button{flex:1;border:none;background:transparent;color:var(--muted);border-radius:9px;padding:10px;font-weight:700;font-size:14px;cursor:pointer;font-family:inherit}
+  .authtabs button.on{background:var(--surface);color:var(--text);box-shadow:0 1px 3px #0000001a}
+  .field{display:flex;flex-direction:column;gap:6px;margin-bottom:14px}
+  .field label{font-size:12px;color:var(--muted);font-weight:600}
+  .field input{border:1px solid var(--border);border-radius:11px;padding:13px 14px;background:var(--surface);color:var(--text);font-family:inherit;font-size:14px}
+  .field input:focus{outline:none;border-color:var(--accent)}
+  .reg{display:none}body.regmode .reg{display:flex}body.regmode .loginonly{display:none}
+  .forgot{text-align:right;font-size:13px;color:var(--accent-text);font-weight:600;margin:-4px 0 16px}
+  .authnote{text-align:center;font-size:13px;color:var(--muted);margin-top:16px}
+
+  /* Account */
+  .acclayout{display:grid;grid-template-columns:240px 1fr;gap:24px;padding:24px 0 60px}
+  @media(max-width:780px){.acclayout{grid-template-columns:1fr}}
+  .side{background:var(--surface);border:1px solid var(--border);border-radius:16px;padding:14px;height:fit-content}
+  .user{display:flex;align-items:center;gap:12px;padding:10px 10px 16px;border-bottom:1px solid var(--border);margin-bottom:10px}
+  .avatar{width:44px;height:44px;border-radius:50%;background:var(--accent);color:var(--accent-ink);display:flex;align-items:center;justify-content:center;font-weight:800;font-size:18px}
+  .user .nm{font-weight:700;font-size:14px}.user .em{font-size:12px;color:var(--muted)}
+  .snav button{display:flex;align-items:center;gap:10px;width:100%;border:none;background:transparent;color:var(--text);
+    padding:11px 12px;border-radius:10px;font-size:14px;font-weight:600;cursor:pointer;font-family:inherit;text-align:left}
+  .snav button:hover{background:var(--surface2)}
+  .snav button.on{background:var(--a50);color:var(--accent-text)}
+  [data-theme="dark"] .snav button.on{background:#2a1d05}
+  .snav .logout{color:var(--muted)}
+
+  .panel{display:none}.panel.on{display:block}
+  .panel h2{font-size:22px;margin:0 0 18px;font-weight:700}
+
+  .order{background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:18px;margin-bottom:14px}
+  .ohead{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;margin-bottom:12px}
+  .ohead .no{font-weight:700}.ohead .dt{color:var(--muted);font-size:13px;margin-left:10px}
+  .status{font-size:12px;font-weight:700;padding:5px 11px;border-radius:999px}
+  .status.new{background:var(--a50);color:var(--accent-text)}[data-theme="dark"] .status.new{background:#2a1d05}
+  .status.proc{background:#fff4e0;color:#b45309}[data-theme="dark"] .status.proc{background:#3a2a08;color:#fbbf24}
+  .status.ship{background:#e7f0ff;color:#0a66d6}[data-theme="dark"] .status.ship{background:#0e2748;color:#7db4ff}
+  .status.done{background:#e6f6ec;color:#16a34a}[data-theme="dark"] .status.done{background:#0f2e1c;color:#34d27f}
+  .status.cancel{background:var(--surface2);color:var(--muted)}
+  .oitems{display:flex;align-items:center;gap:10px;color:var(--muted);font-size:13px;flex-wrap:wrap}
+  .oth{width:40px;height:40px;border-radius:8px;background:linear-gradient(135deg,var(--n100),var(--n200))}
+  [data-theme="dark"] .oth{background:linear-gradient(135deg,var(--n800),var(--n700))}
+  .ofoot{display:flex;align-items:center;justify-content:space-between;margin-top:14px;padding-top:14px;border-top:1px solid var(--border);flex-wrap:wrap;gap:10px}
+  .ofoot .tot{font-weight:800;font-size:16px}
+  .olinks{display:flex;gap:10px}
+  .lnk{border:1px solid var(--border);background:transparent;color:var(--text);border-radius:10px;padding:9px 14px;font-size:13px;font-weight:600;cursor:pointer;font-family:inherit}
+  .lnk:hover{border-color:var(--accent);color:var(--accent-text)}
+  .lnk.acc{background:var(--accent);border-color:var(--accent);color:var(--accent-ink)}
+
+  .pcard{background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:20px;max-width:560px}
+  .frow{display:grid;grid-template-columns:1fr 1fr;gap:14px}@media(max-width:520px){.frow{grid-template-columns:1fr}}
+  .addr{background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:16px 18px;margin-bottom:12px;display:flex;justify-content:space-between;gap:12px}
+  .addr .t{font-weight:600;font-size:14px}.addr .d{color:var(--muted);font-size:13px;margin-top:4px}
+
+  @media(max-width:760px){.nav,.search{display:none}.burger{display:inline-flex}}
+  .devnote{padding:0 0 50px;color:var(--muted);font-size:12px;line-height:1.6}
+  .devnote code{background:var(--surface2);padding:2px 6px;border-radius:4px}
+</style>
+</head>
+<body data-theme="light">
+  <header class="hdr"><div class="hdr-inner container">
+    <a class="logo" href="#"><img src="logo.png" alt="Tesla Spare Parts Lviv"></a>
+    <nav class="nav"><a>Магазин</a><a>Про нас</a><a>Контакти</a></nav>
+    <div class="search">🔍 Пошук за назвою або артикулом…</div>
+    <div class="right">
+      <button class="toggle" onclick="t()">◐ Тема</button>
+      <div class="icon">♡</div>
+      <div class="icon">🛒<span class="cartdot">3</span></div>
+      <button class="burger" onclick="openMenu()">☰</button>
+    </div>
+  </div></header>
+  <div class="backdrop" id="backdrop" onclick="closeAll()"></div>
+  <nav class="mmenu" id="mmenu">
+    <div class="mhead"><span class="logo"><img src="logo.png" alt="Tesla Spare Parts Lviv"></span><button class="close" onclick="closeAll()">✕</button></div>
+    <a>Магазин</a><a>Про нас</a><a>Контакти</a><a>Кабінет</a>
+  </nav>
+
+  <div class="container">
+    <div class="steps">
+      <button class="step on" onclick="setView('auth',this)">Авторизація</button>
+      <button class="step" onclick="setView('account',this)">Кабінет</button>
+    </div>
+
+    <!-- ===== АВТОРИЗАЦІЯ (FR-7.1, FR-7.5) ===== -->
+    <div class="view-auth">
+      <div class="auth">
+        <div class="authtabs">
+          <button class="on" onclick="setMode(false,this)">Вхід</button>
+          <button onclick="setMode(true,this)">Реєстрація</button>
+        </div>
+        <div class="field reg"><label>Ім'я</label><input placeholder="Ваше ім'я"></div>
+        <div class="field"><label>Email або телефон</label><input placeholder="you@example.com / +380"></div>
+        <div class="field"><label>Пароль</label><input type="password" placeholder="••••••••"></div>
+        <div class="field reg"><label>Повторіть пароль</label><input type="password" placeholder="••••••••"></div>
+        <div class="forgot loginonly">Забули пароль?</div>
+        <button class="btn primary block">Увійти</button>
+        <div class="authnote">Продовжуючи, ви погоджуєтесь з умовами та політикою конфіденційності.</div>
+      </div>
+    </div>
+
+    <!-- ===== КАБІНЕТ (FR-7.2..7.4) ===== -->
+    <div class="view-account">
+      <div class="acclayout">
+        <aside class="side">
+          <div class="user">
+            <div class="avatar">О</div>
+            <div><div class="nm">Олександр</div><div class="em">oleksandr@example.com</div></div>
+          </div>
+          <div class="snav">
+            <button class="on" onclick="setPanel('orders',this)">🧾 Замовлення</button>
+            <button onclick="setPanel('profile',this)">👤 Профіль</button>
+            <button onclick="setPanel('addr',this)">📍 Адреси</button>
+            <button class="logout" onclick="setView('auth')">↪ Вийти</button>
+          </div>
+        </aside>
+
+        <div>
+          <!-- Замовлення (FR-7.3, FR-7.4) -->
+          <div class="panel on" id="p-orders">
+            <h2>Мої замовлення</h2>
+            <div id="orders"></div>
+          </div>
+
+          <!-- Профіль (FR-7.2) -->
+          <div class="panel" id="p-profile">
+            <h2>Профіль</h2>
+            <div class="pcard">
+              <div class="frow">
+                <div class="field"><label>Ім'я</label><input value="Олександр"></div>
+                <div class="field"><label>Прізвище</label><input value="Коваль"></div>
+                <div class="field"><label>Телефон</label><input value="+380 67 000 00 00"></div>
+                <div class="field"><label>Email</label><input value="oleksandr@example.com"></div>
+              </div>
+              <button class="btn primary" style="margin-top:6px">Зберегти зміни</button>
+            </div>
+          </div>
+
+          <!-- Адреси (FR-7.2) -->
+          <div class="panel" id="p-addr">
+            <h2>Адреси доставки</h2>
+            <div class="addr"><div><div class="t">Нова Пошта · Львів, №1</div><div class="d">вул. Городоцька, 1 · отримувач: Олександр Коваль</div></div><button class="lnk">Редагувати</button></div>
+            <div class="addr"><div><div class="t">Нова Пошта · Київ, №35</div><div class="d">отримувач: Олександр Коваль</div></div><button class="lnk">Редагувати</button></div>
+            <button class="btn ghost" style="margin-top:6px">+ Додати адресу</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <p class="devnote">
+      Референс особистого кабінету за FRD §3.8. Авторизація: вхід/реєстрація (email/телефон + пароль), «Забули пароль?» (FR-7.1, FR-7.5).
+      Кабінет: профіль (FR-7.2), адреси доставки (FR-7.2), історія замовлень зі статусами
+      <code>новий → в обробці → відправлено → виконано / скасовано</code> (FR-7.3), деталі + повторне замовлення (FR-7.4).
+      JWT-сесії; кабінет — Фаза 2 за PRD. Перемикач угорі демонструє обидва стани (гість / авторизований).
+    </p>
+  </div>
+
+<script>
+  const orders=[
+    ['#1043','24 червня 2026','ship','Відправлено','9 200 ₴',3],
+    ['#1027','11 червня 2026','done','Виконано','1 450 ₴',1],
+    ['#1014','2 червня 2026','proc','В обробці','6 900 ₴',2],
+    ['#0998','20 травня 2026','cancel','Скасовано','540 ₴',1],
+  ];
+  document.getElementById('orders').innerHTML=orders.map(([no,dt,cls,st,tot,qty])=>`
+    <div class="order">
+      <div class="ohead">
+        <div><span class="no">Замовлення ${no}</span><span class="dt">${dt}</span></div>
+        <span class="status ${cls}">${st}</span>
+      </div>
+      <div class="oitems"><span class="oth"></span><span class="oth"></span>${qty>2?'<span class="oth"></span>':''} ${qty} товар(и) у замовленні</div>
+      <div class="ofoot">
+        <span class="tot">${tot}</span>
+        <span class="olinks"><button class="lnk">Деталі</button><button class="lnk acc">Повторити замовлення</button></span>
+      </div>
+    </div>`).join('');
+
+  function setView(v,el){
+    document.body.classList.toggle('acc', v==='account');
+    document.querySelectorAll('.step').forEach(s=>s.classList.remove('on'));
+    const steps=document.querySelectorAll('.step'); (v==='account'?steps[1]:steps[0]).classList.add('on');
+    scrollTo({top:0});
+  }
+  function setMode(reg,el){
+    document.body.classList.toggle('regmode',reg);
+    el.parentNode.querySelectorAll('button').forEach(b=>b.classList.remove('on'));el.classList.add('on');
+    document.querySelector('.auth .btn').textContent = reg?'Зареєструватися':'Увійти';
+  }
+  function setPanel(p,el){
+    document.querySelectorAll('.panel').forEach(x=>x.classList.remove('on'));
+    document.getElementById('p-'+p).classList.add('on');
+    el.parentNode.querySelectorAll('button').forEach(b=>b.classList.remove('on'));el.classList.add('on');
+  }
+  const bd=document.getElementById('backdrop');
+  function openMenu(){document.getElementById('mmenu').classList.add('open');bd.classList.add('show')}
+  function closeAll(){document.getElementById('mmenu').classList.remove('open');bd.classList.remove('show')}
+  function t(){const b=document.body;b.dataset.theme=b.dataset.theme==='light'?'dark':'light'}
+</script>
+</body>
+</html>

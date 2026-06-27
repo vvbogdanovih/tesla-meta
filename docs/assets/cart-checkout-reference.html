@@ -118,6 +118,19 @@
   .opt .t{font-weight:600;font-size:14px}.opt .d{font-size:12px;color:var(--muted)}
   .opt .price{margin-left:auto;font-weight:700;font-size:14px}
   .pickup{display:none;margin-top:10px;background:var(--surface2);border:1px solid var(--border);border-radius:12px;padding:14px 16px;font-size:13px;color:var(--text);line-height:1.55}
+  /* Авторизований checkout */
+  body.authed .guest-only{display:none}
+  body:not(.authed) .authed-only{display:none}
+  .authswitch{display:flex;align-items:center;gap:8px;margin:-4px 0 18px;font-size:14px;color:var(--muted);flex-wrap:wrap}
+  .seg{border:1px solid var(--border);background:var(--surface);color:var(--muted);border-radius:999px;padding:8px 14px;font-size:13px;font-weight:600;cursor:pointer;font-family:inherit}
+  .seg.on{background:var(--accent);border-color:var(--accent);color:var(--accent-ink)}
+  .logged{display:flex;align-items:center;gap:10px;flex-wrap:wrap;background:var(--surface2);border:1px solid var(--border);border-radius:12px;padding:14px 16px;font-size:14px}
+  .logged .chg{margin-left:auto;border:1px solid var(--border);background:transparent;color:var(--text);border-radius:9px;padding:7px 12px;font-size:13px;font-weight:600;cursor:pointer;font-family:inherit}
+  .logged .chg:hover{border-color:var(--accent);color:var(--accent-text)}
+  .addmore{border:none;background:transparent;color:var(--accent-text);font-weight:600;font-size:13px;cursor:pointer;font-family:inherit;padding:8px 0;margin-bottom:6px}
+  .savechk{display:flex;align-items:center;gap:8px;font-size:13px;color:var(--text);margin-top:12px;cursor:pointer}
+  #newAddr{display:none}
+  body:not(.authed) #newAddr{display:block}
 
   /* Empty */
   .empty{display:none;text-align:center;padding:70px 20px;background:var(--surface);border:1px solid var(--border);border-radius:16px}
@@ -194,28 +207,46 @@
     <!-- ===== ОФОРМЛЕННЯ (P8, FR-6) ===== -->
     <div class="view-checkout">
       <h1>Оформлення замовлення</h1>
+      <div class="authswitch">
+        <span>Оформити як:</span>
+        <button class="seg on" onclick="setAuthed(false,this)">Гість</button>
+        <button class="seg" onclick="setAuthed(true,this)">Олександр (увійшли)</button>
+      </div>
       <div class="grid">
         <div>
           <div class="block">
             <h3><span class="num">1</span> Контактні дані</h3>
-            <div class="frow">
-              <div class="field full"><label>ПІБ</label><input placeholder="Прізвище Ім'я По батькові"></div>
-              <div class="field"><label>Телефон</label><input placeholder="+380"></div>
-              <div class="field"><label>Email</label><input placeholder="you@example.com"></div>
+            <div class="authed-only logged">✓ Ви увійшли як <b>Олександр Коваль</b> · +380 67 000 00 00 · oleksandr@example.com <button class="chg">Змінити</button></div>
+            <div class="guest-only">
+              <div class="frow">
+                <div class="field full"><label>ПІБ</label><input placeholder="Прізвище Ім'я По батькові"></div>
+                <div class="field"><label>Телефон</label><input placeholder="+380"></div>
+                <div class="field"><label>Email</label><input placeholder="you@example.com"></div>
+              </div>
+              <div class="note">Оформлення доступне без реєстрації (гостьовий checkout). Або увійдіть, щоб пришвидшити.</div>
             </div>
-            <div class="note">Оформлення доступне без реєстрації (гостьовий checkout).</div>
           </div>
 
           <div class="block">
             <h3><span class="num">2</span> Доставка</h3>
-            <label class="opt on" onclick="selDelivery(this,'np')"><span class="radio"></span><span><span class="t">Нова Пошта</span><br><span class="d">Відділення / поштомат · 1–2 дні</span></span><span class="price">за тарифом</span></label>
-            <label class="opt" onclick="selDelivery(this,'up')"><span class="radio"></span><span><span class="t">Укрпошта</span><br><span class="d">Відділення · 2–4 дні</span></span><span class="price">за тарифом</span></label>
-            <label class="opt" onclick="selDelivery(this,'pickup')"><span class="radio"></span><span><span class="t">Самовивіз</span><br><span class="d">м. Львів, вул. Городоцька, 1 · Пн–Сб 10:00–19:00</span></span><span class="price">0 ₴</span></label>
-            <div class="frow" id="npFields" style="margin-top:6px">
-              <div class="field"><label>Місто</label><select><option>Львів</option><option>Київ</option><option>Одеса</option></select></div>
-              <div class="field"><label>Відділення</label><select><option>№1 (вул. Городоцька, 1)</option><option>№35</option><option>Поштомат №1027</option></select></div>
+            <!-- Збережені адреси (лише авторизований) -->
+            <div class="authed-only">
+              <label class="opt on" onclick="selRadio(this)"><span class="radio"></span><span><span class="t">Нова Пошта · Львів, №1</span><br><span class="d">вул. Городоцька, 1 · Олександр Коваль</span></span></label>
+              <label class="opt" onclick="selRadio(this)"><span class="radio"></span><span><span class="t">Нова Пошта · Київ, №35</span><br><span class="d">Олександр Коваль</span></span></label>
+              <button class="addmore" onclick="document.getElementById('newAddr').style.display='block';this.style.display='none'">+ Доставити на іншу адресу</button>
             </div>
-            <div id="pickupInfo" class="pickup">📍 Забрати у магазині: <b>м. Львів, вул. Городоцька, 1</b>. Графік: Пн–Сб 10:00–19:00. Ми повідомимо, коли замовлення буде готове до видачі.</div>
+            <!-- Вибір нового способу доставки (гість завжди; авторизований — за «іншою адресою») -->
+            <div id="newAddr">
+              <label class="opt on" onclick="selDelivery(this,'np')"><span class="radio"></span><span><span class="t">Нова Пошта</span><br><span class="d">Відділення / поштомат · 1–2 дні</span></span><span class="price">за тарифом</span></label>
+              <label class="opt" onclick="selDelivery(this,'up')"><span class="radio"></span><span><span class="t">Укрпошта</span><br><span class="d">Відділення · 2–4 дні</span></span><span class="price">за тарифом</span></label>
+              <label class="opt" onclick="selDelivery(this,'pickup')"><span class="radio"></span><span><span class="t">Самовивіз</span><br><span class="d">м. Львів, вул. Городоцька, 1 · Пн–Сб 10:00–19:00</span></span><span class="price">0 ₴</span></label>
+              <div class="frow" id="npFields" style="margin-top:6px">
+                <div class="field"><label>Місто</label><select><option>Львів</option><option>Київ</option><option>Одеса</option></select></div>
+                <div class="field"><label>Відділення</label><select><option>№1 (вул. Городоцька, 1)</option><option>№35</option><option>Поштомат №1027</option></select></div>
+              </div>
+              <div id="pickupInfo" class="pickup">📍 Забрати у магазині: <b>м. Львів, вул. Городоцька, 1</b>. Графік: Пн–Сб 10:00–19:00. Ми повідомимо, коли замовлення буде готове до видачі.</div>
+              <label class="savechk authed-only"><input type="checkbox"> Зберегти цю адресу в кабінет</label>
+            </div>
           </div>
 
           <div class="block" id="paymentBlock">
@@ -280,6 +311,10 @@
   const bd=document.getElementById('backdrop');
   function openMenu(){document.getElementById('mmenu').classList.add('open');bd.classList.add('show')}
   function closeAll(){document.getElementById('mmenu').classList.remove('open');bd.classList.remove('show')}
+  function setAuthed(on,el){
+    document.body.classList.toggle('authed',on);
+    el.parentNode.querySelectorAll('.seg').forEach(s=>s.classList.remove('on'));el.classList.add('on');
+  }
   function selRadio(el){
     el.parentNode.querySelectorAll('.opt').forEach(o=>o.classList.remove('on'));
     el.classList.add('on');
