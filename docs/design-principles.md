@@ -117,6 +117,7 @@
 > - [`assets/catalog-page-reference.html`](assets/catalog-page-reference.html) — каталог: фасетні фільтри (sticky), сітка карток, сортування, активні фільтри-чіпи, пагінація 24/48/96, drawer на мобільному.
 > - [`assets/cart-checkout-reference.html`](assets/cart-checkout-reference.html) — кошик і оформлення: позиції/підсумок/знижки, порожній стан; checkout — контакти, доставка (НП/Укрпошта/**самовивіз**), оплата (картка/накладений/**IBAN**/**готівка при самовивозі**), **гість vs авторизований** (збережені адреси).
 > - [`assets/account-reference.html`](assets/account-reference.html) — особистий кабінет: вхід/реєстрація, профіль, адреси доставки, історія замовлень зі статусами, повторне замовлення.
+> - [`assets/search-page-reference.html`](assets/search-page-reference.html) — пошук: автодоповнення (товари/категорії з підсвіткою), результати + сортування, стан «нічого не знайдено» з підбором.
 > - [`assets/error-404-reference.html`](assets/error-404-reference.html) — сторінка 404: пошук, CTA на головну/каталог, популярні категорії, заявка на підбір.
 
 ---
