@@ -120,6 +120,7 @@
 > - [`assets/search-page-reference.html`](assets/search-page-reference.html) — пошук: автодоповнення (товари/категорії з підсвіткою), результати + сортування, стан «нічого не знайдено» з підбором.
 > - [`assets/error-404-reference.html`](assets/error-404-reference.html) — сторінка 404: пошук, CTA на головну/каталог, популярні категорії, заявка на підбір.
 > - [`assets/content-page-reference.html`](assets/content-page-reference.html) — шаблон інфо-сторінок (про нас, доставка, повернення, оферта…): бічна навігація + типографіка контенту, таблиці, callout, CTA.
+> - [`assets/admin-reference.html`](assets/admin-reference.html) — **адмінка** (`tesla-admin`): дашборд, товари (таблиця + форма з вибором сумісності M2M), замовлення, ліди, довідник авто, системи, банери, користувачі/ролі.
 
 ---
 

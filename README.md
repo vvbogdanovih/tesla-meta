@@ -29,7 +29,7 @@ Tesla Lviv — повний редизайн і перенесення наяв�
 | [docs/README.md](docs/README.md) | Індекс документації — навігація по всіх документах |
 | [docs/PRD.md](docs/PRD.md) | Product Requirements — цілі, аудиторія, scope, епіки, user stories, ризики, фази |
 | [docs/FRD.md](docs/FRD.md) | Functional Requirements — архітектура, sitemap, FR по компонентах, API, моделі даних, NFR |
-| [docs/db-schema.md](docs/db-schema.md) | Модель БД (PostgreSQL) — ER-діаграма, таблиці, enum'и, індекси |
+| [docs/db-schema.md](docs/db-schema.md) | Модель БД (PostgreSQL + Prisma) — ER-діаграма, Prisma-схема, enum'и, індекси |
 | [docs/current-site-audit.md](docs/current-site-audit.md) | Аудит чинного сайту teslalviv.com — baseline, що зберегти, реальні слабкі місця |
 | [docs/seo-strategy.md](docs/seo-strategy.md) | SEO-стратегія — міграція без втрат, технічний фундамент, фасети, приріст |
 | [docs/design-principles.md](docs/design-principles.md) | Дизайн-принципи — візуальна мова, теми, типографіка, рух, компоненти |

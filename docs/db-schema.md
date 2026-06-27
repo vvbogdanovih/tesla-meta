@@ -1,11 +1,11 @@
-# Модель бази даних — Tesla Lviv (PostgreSQL)
+# Модель бази даних — Tesla Lviv (PostgreSQL + Prisma)
 
-**Версія:** 1.0
+**Версія:** 1.1
 **Дата:** 27.06.2026
 **Статус:** Draft
 **Пов'язано:** [FRD §6](FRD.md) · [ADR-0002](adr/0002-catalog-compatibility-architecture.md) (каталог/сумісність) · [ADR-0003](adr/0003-database-postgresql.md) (PostgreSQL)
 
-> Реляційна схема під архітектуру з ADR-0002: **сумісність відокремлена від таксономії** (довідник авто `cars` + M2M `product_fitment`), системи — глобальний довідник, товар — один canonical-запис. JSONB — для гнучких полів (характеристики, SEO, адреси/оплата в замовленні).
+> Реляційна схема під архітектуру ADR-0002: **сумісність відокремлена від таксономії** (довідник авто `Car` + M2M `ProductFitment`), системи — глобальний довідник, товар — один canonical-запис. ORM — **Prisma** (схема нижче в нотації Prisma). JSONB (`Json`) — для гнучких полів.
 
 ---
 
@@ -13,369 +13,373 @@
 
 ```mermaid
 erDiagram
-  cars            ||--o{ product_fitment : "сумісність"
-  products        ||--o{ product_fitment : "сумісність"
-  systems         ||--o{ products        : "система"
-  systems         ||--o{ systems         : "підсистеми"
-  products        ||--o{ product_images  : "фото"
-  products        ||--o{ product_related : "схожі"
-  products        ||--o{ order_items     : ""
-  orders          ||--o{ order_items     : "позиції"
-  users           ||--o{ orders          : "замовлення"
-  users           ||--o{ addresses       : "адреси"
-  users           ||--o{ leads           : "заявки"
-  products        ||--o{ leads           : "по товару"
+  Car             ||--o{ ProductFitment : "сумісність"
+  Product         ||--o{ ProductFitment : "сумісність"
+  System          ||--o{ Product        : "система"
+  System          ||--o{ System         : "підсистеми"
+  Product         ||--o{ ProductImage   : "фото"
+  Product         ||--o{ OrderItem      : ""
+  Order           ||--o{ OrderItem      : "позиції"
+  User            ||--o{ Order          : "замовлення"
+  User            ||--o{ Address        : "адреси"
+  Product         ||--o{ Lead           : "по товару"
 
-  cars {
+  Car {
     bigint id PK
-    text brand
-    text model
-    text generation
-    text slug UK
-    date production_start
-    date production_end
+    string brand
+    string model
+    string generation
+    string slug UK
+    date   productionStart
+    date   productionEnd
   }
-  systems {
+  System {
     bigint id PK
-    text slug UK
-    text name
-    bigint parent_id FK
-    int sort_order
-    jsonb seo
+    string slug UK
+    string name
+    bigint parentId FK
   }
-  products {
+  Product {
     bigint id PK
-    text slug UK
-    text sku UK
-    text name
-    numeric price
-    numeric old_price
-    text type
-    boolean in_stock
-    int stock_qty
-    bigint system_id FK
-    jsonb attributes
-    boolean is_active
+    string slug UK
+    string sku UK
+    string name
+    decimal price
+    decimal oldPrice
+    enum   condition
+    enum   type
+    bool   inStock
+    bigint systemId FK
+    json   attributes
   }
-  product_fitment {
-    bigint product_id FK
-    bigint car_id FK
-    int year_from
-    int year_to
+  ProductFitment {
+    bigint productId FK
+    bigint carId FK
+    int    yearFrom
+    int    yearTo
   }
-  product_images {
+  Order {
     bigint id PK
-    bigint product_id FK
-    text url
-    text alt
-    int sort_order
+    string orderNumber UK
+    bigint userId FK
+    json   customer
+    json   delivery
+    json   payment
+    decimal total
+    enum   status
   }
-  product_related {
-    bigint product_id FK
-    bigint related_id FK
-  }
-  orders {
+  OrderItem {
     bigint id PK
-    text order_number UK
-    bigint user_id FK
-    jsonb customer
-    jsonb delivery
-    jsonb payment
-    numeric total
-    text status
-    boolean is_one_click
-    timestamptz created_at
+    bigint orderId FK
+    bigint productId FK
+    string sku
+    decimal price
+    int    qty
   }
-  order_items {
+  User {
     bigint id PK
-    bigint order_id FK
-    bigint product_id FK
-    text name
-    text sku
-    numeric price
-    int qty
+    string email UK
+    enum   role
   }
-  users {
+  Address {
     bigint id PK
-    text email UK
-    text phone
-    text password_hash
-    text first_name
-    text last_name
-    text role
+    bigint userId FK
+    enum   method
+    string city
+    string warehouse
   }
-  addresses {
+  Lead {
     bigint id PK
-    bigint user_id FK
-    text label
-    text method
-    text city
-    text warehouse
-    text recipient
-    boolean is_default
+    enum   type
+    string vin
+    bigint productId FK
+    enum   status
   }
-  leads {
-    bigint id PK
-    text type
-    text name
-    text phone
-    text vin
-    numeric target_price
-    bigint product_id FK
-    text status
-  }
-```
-
-> Контент-сутності (`blog_posts`, `banners`, `redirects`) самостійні й на діаграмі опущені для чистоти — деталі в §3.
-
----
-
-## 2. Enum-типи
-
-```sql
-CREATE TYPE product_type     AS ENUM ('original','analog');
-CREATE TYPE product_condition AS ENUM ('new');                 -- зараз лише new; розширюване
-CREATE TYPE order_status     AS ENUM ('new','processing','shipped','done','canceled');
-CREATE TYPE delivery_method  AS ENUM ('np','ukrposhta','pickup');
-CREATE TYPE payment_method   AS ENUM ('card','cod','iban','cash');
-CREATE TYPE payment_status   AS ENUM ('pending','paid','failed','refunded');
-CREATE TYPE user_role        AS ENUM ('user','admin','superadmin');  -- user=покупець
-CREATE TYPE lead_type        AS ENUM ('fitment','price_match','price_subscribe','contact');
-CREATE TYPE lead_status      AS ENUM ('new','handled');
 ```
 
 ---
 
-## 3. Таблиці
+## 2. Prisma-схема (`schema.prisma`)
 
-### 3.1 Каталог
+```prisma
+generator client {
+  provider = "prisma-client-js"
+}
 
-```sql
--- Довідник авто (рівень покоління/фейсліфта)
-CREATE TABLE cars (
-  id               bigserial PRIMARY KEY,
-  brand            text NOT NULL DEFAULT 'Tesla',
-  model            text NOT NULL,                 -- Model 3 / Model Y / Model S / Model X
-  generation       text,                          -- Pre-facelift / Highland / Phase 1 / Juniper
-  slug             text NOT NULL UNIQUE,          -- model-3-highland
-  production_start date,
-  production_end   date                           -- NULL = у виробництві
-);
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
 
--- Глобальний довідник систем авто
-CREATE TABLE systems (
-  id          bigserial PRIMARY KEY,
-  slug        text NOT NULL UNIQUE,               -- kuzov
-  name        text NOT NULL,                      -- Кузов
-  parent_id   bigint REFERENCES systems(id) ON DELETE SET NULL,
-  sort_order  int NOT NULL DEFAULT 0,
-  seo         jsonb NOT NULL DEFAULT '{}'
-);
+// ───────── Enums ─────────
+enum ProductType      { original analog }
+enum ProductCondition { new used clearance }      // Новий / Б/у / Уцінка
+enum OrderStatus      { new processing shipped done canceled }
+enum DeliveryMethod   { np ukrposhta pickup }
+enum PaymentMethod    { card cod iban cash }
+enum PaymentStatus    { pending paid failed refunded }
+enum UserRole         { user admin superadmin }
+enum LeadType         { fitment price_match price_subscribe contact }
+enum LeadStatus       { new handled }
 
--- Товар (один canonical-запис)
-CREATE TABLE products (
-  id             bigserial PRIMARY KEY,
-  slug           text NOT NULL UNIQUE,
-  sku            text NOT NULL UNIQUE,            -- артикул / код запчастини
-  name           text NOT NULL,
-  price          numeric(12,2) NOT NULL,
-  old_price      numeric(12,2),                   -- NULL якщо без знижки
-  condition      product_condition NOT NULL DEFAULT 'new',
-  type           product_type NOT NULL,           -- original | analog
-  in_stock       boolean NOT NULL DEFAULT true,
-  stock_qty      int NOT NULL DEFAULT 0,
-  system_id      bigint NOT NULL REFERENCES systems(id),
-  attributes     jsonb NOT NULL DEFAULT '{}',     -- гнучкі характеристики
-  description    text,
-  warranty       text,
-  delivery_terms text,
-  seo            jsonb NOT NULL DEFAULT '{}',      -- { title, description, ogImage }
-  is_active      boolean NOT NULL DEFAULT true,
-  created_at     timestamptz NOT NULL DEFAULT now(),
-  updated_at     timestamptz NOT NULL DEFAULT now()
-);
+// ───────── Каталог ─────────
+model Car {
+  id              BigInt    @id @default(autoincrement())
+  brand           String    @default("Tesla")
+  model           String                                  // Model 3 / Model Y / Model S / Model X
+  generation      String?                                 // Pre-facelift / Highland / Phase 1 / Juniper
+  slug            String    @unique                       // model-3-highland
+  productionStart DateTime? @map("production_start") @db.Date
+  productionEnd   DateTime? @map("production_end")   @db.Date  // null = у виробництві
+  fitment         ProductFitment[]
+  @@map("cars")
+}
 
--- M2M сумісність товар ↔ авто
-CREATE TABLE product_fitment (
-  product_id bigint NOT NULL REFERENCES products(id) ON DELETE CASCADE,
-  car_id     bigint NOT NULL REFERENCES cars(id) ON DELETE CASCADE,
-  year_from  int,                                 -- уточнення в межах покоління (опц.)
-  year_to    int,
-  PRIMARY KEY (product_id, car_id)
-);
+model System {
+  id        BigInt    @id @default(autoincrement())
+  slug      String    @unique                              // kuzov
+  name      String                                         // Кузов
+  parentId  BigInt?   @map("parent_id")
+  parent    System?   @relation("SystemTree", fields: [parentId], references: [id])
+  children  System[]  @relation("SystemTree")
+  sortOrder Int       @default(0) @map("sort_order")
+  seo       Json      @default("{}")
+  products  Product[]
+  @@map("systems")
+}
 
-CREATE TABLE product_images (
-  id         bigserial PRIMARY KEY,
-  product_id bigint NOT NULL REFERENCES products(id) ON DELETE CASCADE,
-  url        text NOT NULL,                        -- S3 URL
-  alt        text,
-  sort_order int NOT NULL DEFAULT 0
-);
+model Product {
+  id            BigInt           @id @default(autoincrement())
+  slug          String           @unique
+  sku           String           @unique                   // артикул / код запчастини
+  name          String
+  price         Decimal          @db.Decimal(12, 2)
+  oldPrice      Decimal?         @map("old_price") @db.Decimal(12, 2)
+  condition     ProductCondition @default(new)             // new | used | clearance
+  type          ProductType                                // original | analog
+  inStock       Boolean          @default(true) @map("in_stock")
+  stockQty      Int              @default(0)   @map("stock_qty")
+  systemId      BigInt           @map("system_id")
+  system        System           @relation(fields: [systemId], references: [id])
+  attributes    Json             @default("{}")            // гнучкі характеристики
+  description   String?
+  warranty      String?
+  deliveryTerms String?          @map("delivery_terms")
+  seo           Json             @default("{}")            // { title, description, ogImage }
+  isActive      Boolean          @default(true) @map("is_active")
+  createdAt     DateTime         @default(now()) @map("created_at")
+  updatedAt     DateTime         @updatedAt      @map("updated_at")
 
-CREATE TABLE product_related (
-  product_id bigint NOT NULL REFERENCES products(id) ON DELETE CASCADE,
-  related_id bigint NOT NULL REFERENCES products(id) ON DELETE CASCADE,
-  PRIMARY KEY (product_id, related_id)
-);
-```
+  fitment    ProductFitment[]
+  images     ProductImage[]
+  related    ProductRelated[] @relation("ProductRelated")
+  relatedBy  ProductRelated[] @relation("RelatedProduct")
+  orderItems OrderItem[]
+  leads      Lead[]
 
-### 3.2 Користувачі та замовлення
+  @@index([systemId])
+  @@index([isActive, inStock])
+  @@index([price])
+  @@map("products")
+}
 
-```sql
-CREATE TABLE users (
-  id            bigserial PRIMARY KEY,
-  email         text UNIQUE,
-  phone         text,
-  password_hash text,
-  first_name    text,
-  last_name     text,
-  role          user_role NOT NULL DEFAULT 'user',
-  created_at    timestamptz NOT NULL DEFAULT now()
-);
+// M2M сумісність товар ↔ авто
+model ProductFitment {
+  productId BigInt  @map("product_id")
+  carId     BigInt  @map("car_id")
+  yearFrom  Int?    @map("year_from")                      // уточнення в межах покоління (опц.)
+  yearTo    Int?    @map("year_to")
+  product   Product @relation(fields: [productId], references: [id], onDelete: Cascade)
+  car       Car     @relation(fields: [carId],     references: [id], onDelete: Cascade)
+  @@id([productId, carId])
+  @@index([carId])
+  @@map("product_fitment")
+}
 
-CREATE TABLE addresses (
-  id         bigserial PRIMARY KEY,
-  user_id    bigint NOT NULL REFERENCES users(id) ON DELETE CASCADE,
-  label      text,
-  method     delivery_method NOT NULL,
-  city       text,
-  warehouse  text,
-  recipient  text,
-  phone      text,
-  is_default boolean NOT NULL DEFAULT false
-);
+model ProductImage {
+  id        BigInt  @id @default(autoincrement())
+  productId BigInt  @map("product_id")
+  product   Product @relation(fields: [productId], references: [id], onDelete: Cascade)
+  url       String                                         // S3 URL
+  alt       String?
+  sortOrder Int     @default(0) @map("sort_order")
+  @@map("product_images")
+}
 
-CREATE TABLE orders (
-  id           bigserial PRIMARY KEY,
-  order_number text NOT NULL UNIQUE,              -- людино-читабельний №
-  user_id      bigint REFERENCES users(id) ON DELETE SET NULL,  -- NULL = гість
-  customer     jsonb NOT NULL,                    -- { name, phone, email }
-  delivery     jsonb NOT NULL,                    -- { method, city, warehouse }
-  payment      jsonb NOT NULL,                    -- { method, status }
-  total        numeric(12,2) NOT NULL,
-  status       order_status NOT NULL DEFAULT 'new',
-  is_one_click boolean NOT NULL DEFAULT false,
-  comment      text,
-  created_at   timestamptz NOT NULL DEFAULT now()
-);
+model ProductRelated {
+  productId BigInt  @map("product_id")
+  relatedId BigInt  @map("related_id")
+  product   Product @relation("ProductRelated", fields: [productId], references: [id], onDelete: Cascade)
+  related   Product @relation("RelatedProduct", fields: [relatedId], references: [id], onDelete: Cascade)
+  @@id([productId, relatedId])
+  @@map("product_related")
+}
 
-CREATE TABLE order_items (
-  id         bigserial PRIMARY KEY,
-  order_id   bigint NOT NULL REFERENCES orders(id) ON DELETE CASCADE,
-  product_id bigint REFERENCES products(id) ON DELETE SET NULL,  -- зберігаємо name/sku як снапшот
-  name       text NOT NULL,
-  sku        text NOT NULL,
-  price      numeric(12,2) NOT NULL,             -- ціна на момент замовлення
-  qty        int NOT NULL
-);
-```
+// ───────── Користувачі та замовлення ─────────
+model User {
+  id           BigInt    @id @default(autoincrement())
+  email        String?   @unique
+  phone        String?
+  passwordHash String?   @map("password_hash")
+  firstName    String?   @map("first_name")
+  lastName     String?   @map("last_name")
+  role         UserRole  @default(user)                    // user | admin | superadmin
+  createdAt    DateTime  @default(now()) @map("created_at")
+  addresses    Address[]
+  orders       Order[]
+  leads        Lead[]
+  @@map("users")
+}
 
-### 3.3 Ліди та контент
+model Address {
+  id        BigInt         @id @default(autoincrement())
+  userId    BigInt         @map("user_id")
+  user      User           @relation(fields: [userId], references: [id], onDelete: Cascade)
+  label     String?
+  method    DeliveryMethod
+  city      String?
+  warehouse String?
+  recipient String?
+  phone     String?
+  isDefault Boolean        @default(false) @map("is_default")
+  @@map("addresses")
+}
 
-```sql
-CREATE TABLE leads (
-  id           bigserial PRIMARY KEY,
-  type         lead_type NOT NULL,
-  name         text NOT NULL,
-  phone        text NOT NULL,
-  email        text,
-  vin          text,                              -- для type='fitment'
-  link         text,                              -- для type='price_match'
-  target_price numeric(12,2),                     -- для type='price_subscribe'
-  product_id   bigint REFERENCES products(id) ON DELETE SET NULL,
-  message      text,
-  status       lead_status NOT NULL DEFAULT 'new',
-  created_at   timestamptz NOT NULL DEFAULT now()
-);
+model Order {
+  id          BigInt      @id @default(autoincrement())
+  orderNumber String      @unique @map("order_number")
+  userId      BigInt?     @map("user_id")                  // null = гість
+  user        User?       @relation(fields: [userId], references: [id], onDelete: SetNull)
+  customer    Json                                         // { name, phone, email }
+  delivery    Json                                         // { method, city, warehouse }
+  payment     Json                                         // { method, status }
+  total       Decimal     @db.Decimal(12, 2)
+  status      OrderStatus @default(new)
+  isOneClick  Boolean     @default(false) @map("is_one_click")
+  comment     String?
+  createdAt   DateTime    @default(now()) @map("created_at")
+  items       OrderItem[]
+  @@index([userId])
+  @@index([status])
+  @@map("orders")
+}
 
-CREATE TABLE blog_posts (
-  id           bigserial PRIMARY KEY,
-  slug         text NOT NULL UNIQUE,
-  title        text NOT NULL,
-  excerpt      text,
-  content      text,                              -- HTML / MDX
-  cover_image  text,
-  author       text,
-  category     text,
-  status       text NOT NULL DEFAULT 'draft',     -- draft | published
-  published_at timestamptz,
-  seo          jsonb NOT NULL DEFAULT '{}'
-);
+model OrderItem {
+  id        BigInt   @id @default(autoincrement())
+  orderId   BigInt   @map("order_id")
+  order     Order    @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  productId BigInt?  @map("product_id")
+  product   Product? @relation(fields: [productId], references: [id], onDelete: SetNull)
+  name      String                                         // снапшот на момент покупки
+  sku       String
+  price     Decimal  @db.Decimal(12, 2)
+  qty       Int
+  @@map("order_items")
+}
 
--- Банери головної (FR-A7)
-CREATE TABLE banners (
-  id         bigserial PRIMARY KEY,
-  image      text NOT NULL,
-  link       text,
-  title      text,
-  sort_order int NOT NULL DEFAULT 0,
-  is_active  boolean NOT NULL DEFAULT true
-);
+// ───────── Ліди та контент ─────────
+model Lead {
+  id          BigInt     @id @default(autoincrement())
+  type        LeadType
+  name        String
+  phone       String
+  email       String?
+  vin         String?                                       // type = fitment
+  link        String?                                       // type = price_match
+  targetPrice Decimal?   @map("target_price") @db.Decimal(12, 2)  // type = price_subscribe
+  productId   BigInt?    @map("product_id")
+  product     Product?   @relation(fields: [productId], references: [id], onDelete: SetNull)
+  message     String?
+  status      LeadStatus @default(new)
+  createdAt   DateTime   @default(now()) @map("created_at")
+  @@index([status, type])
+  @@map("leads")
+}
 
--- Карта 301-редиректів зі старого сайту (NFR-3, ADR-0001)
-CREATE TABLE redirects (
-  id        bigserial PRIMARY KEY,
-  from_path text NOT NULL UNIQUE,
-  to_path   text NOT NULL,
-  status    int NOT NULL DEFAULT 301
-);
+model BlogPost {
+  id          BigInt    @id @default(autoincrement())
+  slug        String    @unique
+  title       String
+  excerpt     String?
+  content     String?                                       // HTML / MDX
+  coverImage  String?   @map("cover_image")
+  author      String?
+  category    String?
+  status      String    @default("draft")                   // draft | published
+  publishedAt DateTime? @map("published_at")
+  seo         Json      @default("{}")
+  @@map("blog_posts")
+}
+
+model Banner {
+  id        BigInt  @id @default(autoincrement())
+  image     String
+  link      String?
+  title     String?
+  sortOrder Int     @default(0) @map("sort_order")
+  isActive  Boolean @default(true) @map("is_active")
+  @@map("banners")
+}
+
+// Карта 301-редиректів зі старого сайту (NFR-3, ADR-0001)
+model Redirect {
+  id       BigInt @id @default(autoincrement())
+  fromPath String @unique @map("from_path")
+  toPath   String @map("to_path")
+  status   Int    @default(301)
+  @@map("redirects")
+}
 ```
 
 ---
 
-## 4. Індекси
+## 3. Індекси та пошук
+
+- Базові індекси задано в схемі через `@@index` / `@unique` (system, price, isActive+inStock, fitment.carId, orders.status/userId, leads.status+type).
+- **Пошук за назвою та артикулом** (FR-4.1) — трграмні GIN-індекси `pg_trgm`. Prisma не виражає `gin_trgm_ops` у схемі, тому додаємо **raw-міграцією**:
 
 ```sql
--- Каталог і фільтрація
-CREATE INDEX idx_products_system   ON products(system_id);
-CREATE INDEX idx_products_active   ON products(is_active, in_stock);
-CREATE INDEX idx_products_price    ON products(price);
-CREATE INDEX idx_products_attrs    ON products USING gin(attributes);
-CREATE INDEX idx_fitment_car       ON product_fitment(car_id);          -- «товари для авто X»
-
--- Пошук за назвою та артикулом (FR-4.1) — pg_trgm
+-- prisma/migrations/<ts>_trgm/migration.sql
 CREATE EXTENSION IF NOT EXISTS pg_trgm;
-CREATE INDEX idx_products_name_trgm ON products USING gin(name gin_trgm_ops);
-CREATE INDEX idx_products_sku_trgm  ON products USING gin(sku  gin_trgm_ops);
-
--- Замовлення
-CREATE INDEX idx_orders_user   ON orders(user_id);
-CREATE INDEX idx_orders_status ON orders(status);
-CREATE INDEX idx_orders_number ON orders(order_number);
-
--- Ліди
-CREATE INDEX idx_leads_status  ON leads(status, type);
+CREATE INDEX idx_products_name_trgm ON products USING gin (name gin_trgm_ops);
+CREATE INDEX idx_products_sku_trgm  ON products USING gin (sku  gin_trgm_ops);
+-- за потреби: GIN на attributes (jsonb)
+CREATE INDEX idx_products_attrs ON products USING gin (attributes);
 ```
 
 ---
 
-## 5. Типові запити
+## 4. Типові запити (Prisma Client)
 
-```sql
--- Товари для авто X у системі Y (каталог /category/[model]/[system])
-SELECT p.* FROM products p
-JOIN product_fitment f ON f.product_id = p.id
-WHERE f.car_id = :car_id AND p.system_id = :system_id
-  AND p.is_active ORDER BY p.created_at DESC LIMIT 24;
+```ts
+// Товари для авто X у системі Y (каталог /category/[model]/[system])
+const products = await prisma.product.findMany({
+  where: { isActive: true, systemId, fitment: { some: { carId } } },
+  orderBy: { createdAt: 'desc' },
+  take: 24,
+})
 
--- Сумісність товару (для картки: «Підходить до …»)
-SELECT c.model, c.generation FROM cars c
-JOIN product_fitment f ON f.car_id = c.id
-WHERE f.product_id = :product_id;
+// Сумісність товару (картка: «Підходить до …»)
+const fitment = await prisma.productFitment.findMany({
+  where: { productId },
+  include: { car: true },
+})
 
--- Пошук за назвою/артикулом з автодоповненням
-SELECT * FROM products
-WHERE is_active AND (name ILIKE :q || '%' OR sku ILIKE :q || '%')
-ORDER BY similarity(name, :q) DESC LIMIT 8;
+// Пошук за назвою/артикулом (автодоповнення) — через trgm
+const found = await prisma.$queryRaw`
+  SELECT * FROM products
+  WHERE is_active AND (name ILIKE ${q + '%'} OR sku ILIKE ${q + '%'})
+  ORDER BY similarity(name, ${q}) DESC LIMIT 8`
 ```
 
 ---
 
-## 6. Нотатки
+## 5. Нотатки
 
-- **Снапшот у замовленні:** `order_items` зберігає `name/sku/price` на момент покупки (товар може змінитись/зникнути) — `product_id` лише для зв'язку.
-- **Гостьовий кошик** — у `localStorage` на клієнті; кошик авторизованого можна синхронізувати таблицею `carts/cart_items` (за потреби; у MVP — теж клієнтський + відновлення).
-- **Сумісність із роками:** `year_from/year_to` уточнюють у межах покоління; зазвичай достатньо `car_id` (покоління вже має дати).
-- **VIN-підбір (Фаза 3):** VIN → визначення `cars` → `product_fitment` → товари.
-- **Міграція (ADR-0002):** дедуплікація товарів за `sku`, побудова `product_fitment` зі старих модельних категорій, наповнення `cars`, `redirects`.
-- **`price_subscribe`** (FR-3.10) реалізується через `leads` (type='price_subscribe'); за потреби винести в окрему таблицю з нотифікаціями.
+- **Снапшот у замовленні:** `OrderItem` зберігає `name/sku/price` на момент покупки; `productId` лише для зв'язку (`onDelete: SetNull`).
+- **Гостьовий кошик** — у `localStorage`; кошик авторизованого можна синхронізувати окремими моделями `Cart/CartItem` (за потреби; у MVP — клієнтський + відновлення).
+- **Сумісність із роками:** `yearFrom/yearTo` уточнюють у межах покоління; зазвичай достатньо `carId` (покоління вже має дати).
+- **VIN-підбір (Фаза 3):** VIN → `Car` → `ProductFitment` → товари.
+- **Міграція (ADR-0002):** дедуплікація товарів за `sku`, побудова `ProductFitment` зі старих модельних категорій, наповнення `Car`, `Redirect`.
+- **`price_subscribe`** (FR-3.10) реалізується через `Lead` (type=`price_subscribe`); за потреби — окрема модель із нотифікаціями.
+- **BigInt id:** за бажанням можна замінити на `Int` для простоти (якщо обсяги не вимагають 64-біт).
