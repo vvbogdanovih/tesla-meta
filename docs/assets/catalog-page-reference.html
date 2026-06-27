@@ -1,0 +1,249 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Tesla Lviv — каталог (референс)</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Unbounded:wght@300;400;500;600;700&family=Onest:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --n0:#fff;--n50:#f7f8fa;--n100:#eef0f3;--n200:#dfe3e8;--n300:#c4cad2;--n400:#9aa3ad;
+    --n500:#6b7480;--n600:#4a525c;--n700:#333a42;--n800:#20262c;--n900:#13171b;--n950:#0c0f12;
+    --a50:#FFFBEB;--a400:#FBBF24;--a500:#F59E0B;--a600:#D97706;--a700:#B45309;
+    --ok:#16a34a;--sale:#dc2626;
+    --bg:var(--n50);--surface:var(--n0);--surface2:var(--n100);--border:var(--n200);
+    --text:var(--n900);--muted:var(--n500);
+    --accent:var(--a500);--accent-hover:var(--a600);--accent-ink:#231300;--accent-text:var(--a700);
+    --container:1240px;--gutter:24px;
+  }
+  [data-theme="dark"]{
+    --bg:var(--n950);--surface:var(--n900);--surface2:var(--n800);--border:var(--n700);
+    --text:var(--n50);--muted:var(--n400);--ok:#22c55e;--sale:#f87171;
+    --accent-hover:var(--a400);--accent-text:var(--a400);
+  }
+  *{box-sizing:border-box}
+  body{margin:0;font-family:'Onest',-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Arial,sans-serif;
+    background:var(--bg);color:var(--text);-webkit-font-smoothing:antialiased;transition:background .25s,color .25s}
+  a{color:var(--accent-text);text-decoration:none}
+  .container{max-width:var(--container);margin:0 auto;padding-left:var(--gutter);padding-right:var(--gutter)}
+
+  .hdr{position:sticky;top:0;z-index:20;background:var(--surface);border-bottom:1px solid var(--border)}
+  .hdr-inner{display:flex;align-items:center;gap:20px;padding-top:14px;padding-bottom:14px}
+  .logo{font-weight:800;letter-spacing:.04em;font-size:18px;color:var(--text)}
+  .nav{display:flex;gap:18px;font-size:14px}.nav a{color:var(--text);font-weight:500}
+  .search{flex:1;max-width:420px;margin:0 auto;display:flex;align-items:center;gap:8px;background:var(--surface2);
+    border:1px solid var(--border);border-radius:10px;padding:9px 14px;color:var(--muted);font-size:13px}
+  .hdr .right{display:flex;align-items:center;gap:12px}
+  .icon{width:38px;height:38px;border-radius:10px;border:1px solid var(--border);background:var(--surface);
+    display:flex;align-items:center;justify-content:center;cursor:pointer;color:var(--text);position:relative}
+  .cartdot{position:absolute;top:-6px;right:-6px;background:var(--accent);color:var(--accent-ink);font-size:10px;
+    font-weight:800;border-radius:999px;min-width:18px;height:18px;display:flex;align-items:center;justify-content:center;padding:0 4px}
+  .toggle{cursor:pointer;border:1px solid var(--border);background:var(--surface);color:var(--text);border-radius:999px;padding:9px 14px;font-size:13px}
+
+  .crumbs{font-size:13px;color:var(--muted);padding:18px 0 10px}
+  .crumbs a{color:var(--muted)}.crumbs span{margin:0 8px;opacity:.5}
+
+  .head{display:flex;align-items:flex-end;justify-content:space-between;gap:16px;flex-wrap:wrap;margin-bottom:18px}
+  .head h1{font-size:28px;margin:0 0 4px;font-weight:700;letter-spacing:-.01em}
+  .head .count{font-size:13px;color:var(--muted)}
+
+  .layout{display:grid;grid-template-columns:264px 1fr;gap:28px;padding-bottom:50px}
+  @media(max-width:880px){.layout{grid-template-columns:1fr}.filters{display:none}.mfilt{display:inline-flex!important}}
+
+  /* Filters */
+  .filters{align-self:start;position:sticky;top:84px}
+  .fcard{background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:18px;margin-bottom:14px}
+  .fcard h3{font-size:14px;margin:0 0 12px;font-weight:700}
+  .chk{display:flex;align-items:center;gap:10px;font-size:14px;color:var(--text);margin:9px 0;cursor:pointer}
+  .chk .box{width:18px;height:18px;border:1.5px solid var(--n400);border-radius:5px;flex:0 0 auto;position:relative}
+  .chk.on .box{background:var(--accent);border-color:var(--accent)}
+  .chk.on .box::after{content:"✓";position:absolute;inset:0;display:flex;align-items:center;justify-content:center;color:var(--accent-ink);font-size:12px;font-weight:800}
+  .chk .cnt{margin-left:auto;color:var(--muted);font-size:12px}
+  .price{display:flex;align-items:center;gap:8px;margin-top:6px}
+  .price input{width:100%;border:1px solid var(--border);border-radius:8px;padding:8px 10px;background:var(--surface);color:var(--text);font-size:13px;font-family:inherit}
+  .track{height:4px;background:var(--border);border-radius:4px;position:relative;margin:16px 4px 6px}
+  .track .fill{position:absolute;left:18%;right:30%;top:0;bottom:0;background:var(--accent);border-radius:4px}
+  .track .h{position:absolute;top:50%;width:16px;height:16px;border-radius:50%;background:var(--surface);border:2px solid var(--accent);transform:translate(-50%,-50%)}
+  .reset{width:100%;margin-top:4px;background:transparent;border:1px solid var(--border);color:var(--text);border-radius:10px;padding:10px;font-family:inherit;font-size:13px;font-weight:600;cursor:pointer}
+  .reset:hover{border-color:var(--accent);color:var(--accent-text)}
+
+  /* Toolbar */
+  .toolbar{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;margin-bottom:16px}
+  .chips{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+  .chip{font-size:12px;border:1px solid var(--accent);background:var(--a50);color:var(--accent-text);border-radius:999px;padding:6px 12px;font-weight:600;cursor:pointer}
+  [data-theme="dark"] .chip{background:#2a1d05}
+  .chip .x{margin-left:6px;opacity:.7}
+  .chips .clear{border:none;background:transparent;color:var(--muted);font-size:13px;font-weight:600;cursor:pointer}
+  .chips .clear:hover{color:var(--accent-text)}
+  .right-tools{display:flex;align-items:center;gap:10px}
+  .mfilt{display:none;align-items:center;gap:8px;border:1px solid var(--border);background:var(--surface);color:var(--text);
+    border-radius:10px;padding:9px 14px;font-size:13px;font-weight:600;cursor:pointer}
+  select{border:1px solid var(--border);background:var(--surface);color:var(--text);border-radius:10px;
+    padding:9px 14px;font-size:13px;font-family:inherit;cursor:pointer}
+
+  /* Grid */
+  .pgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:16px}
+  .card{background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:14px;display:flex;flex-direction:column;transition:transform .15s,box-shadow .15s}
+  .card:hover{transform:translateY(-3px);box-shadow:0 12px 28px #0000001a}
+  .ct{aspect-ratio:1;background:linear-gradient(135deg,var(--n100),var(--n200));border-radius:10px;position:relative;margin-bottom:12px;
+    display:flex;align-items:center;justify-content:center;color:var(--n400);font-size:11px}
+  [data-theme="dark"] .ct{background:linear-gradient(135deg,var(--n800),var(--n700))}
+  .ct .bs{position:absolute;top:8px;left:8px;display:flex;gap:5px}
+  .ct .fav{position:absolute;top:8px;right:8px;width:30px;height:30px;border-radius:8px;background:var(--surface);
+    border:1px solid var(--border);display:flex;align-items:center;justify-content:center;cursor:pointer;color:var(--muted)}
+  .badge{font-size:10px;font-weight:800;padding:3px 7px;border-radius:5px;background:var(--n900);color:#fff;letter-spacing:.02em}
+  [data-theme="dark"] .badge{background:var(--n0);color:var(--n900)}
+  .badge.acc{background:var(--accent);color:var(--accent-ink)}
+  .cn{font-size:13px;font-weight:600;line-height:1.35;margin-bottom:4px}
+  .cs{font-size:11px;color:var(--muted);font-family:ui-monospace,Menlo,monospace}
+  .cstock{font-size:11px;color:var(--ok);font-weight:600;margin-top:8px}
+  .cp{display:flex;align-items:baseline;gap:8px;margin:8px 0 12px}
+  .cp .p{font-size:18px;font-weight:800}.cp .o{font-size:12px;color:var(--muted);text-decoration:line-through}
+  .cp .sv{font-size:10px;font-weight:800;color:#fff;background:var(--sale);border-radius:5px;padding:2px 5px}
+  .cbtn{margin-top:auto;width:100%;height:42px;border-radius:10px;border:none;background:var(--accent);color:var(--accent-ink);font-weight:700;font-size:13px;cursor:pointer;font-family:inherit;transition:background .15s}
+  .cbtn:hover{background:var(--accent-hover)}
+
+  /* Pagination */
+  .pager{display:flex;align-items:center;justify-content:center;gap:8px;margin-top:34px}
+  .pager a,.pager span{min-width:40px;height:40px;border-radius:10px;border:1px solid var(--border);background:var(--surface);
+    display:flex;align-items:center;justify-content:center;font-size:14px;color:var(--text);cursor:pointer;font-weight:600}
+  .pager .cur{background:var(--accent);border-color:var(--accent);color:var(--accent-ink)}
+  .pager .dots{border:none;background:transparent;cursor:default}
+  .pager .nav{padding:0 14px}
+  .perpage{display:flex;align-items:center;gap:8px;justify-content:center;margin-top:14px;font-size:13px;color:var(--muted)}
+  .perpage b{cursor:pointer;color:var(--text);padding:2px 8px;border-radius:6px}
+  .perpage b.on{background:var(--accent);color:var(--accent-ink)}
+
+  .devnote{padding:0 0 50px;color:var(--muted);font-size:12px;line-height:1.6}
+  .devnote code{background:var(--surface2);padding:2px 6px;border-radius:4px}
+</style>
+</head>
+<body data-theme="light">
+  <header class="hdr"><div class="hdr-inner container">
+    <span class="logo">TESLA LVIV</span>
+    <nav class="nav"><a>Магазин</a><a>Про нас</a><a>Контакти</a></nav>
+    <div class="search">🔍 Пошук за назвою або артикулом…</div>
+    <div class="right">
+      <button class="toggle" onclick="t()">◐ Тема</button>
+      <div class="icon">♡</div>
+      <div class="icon">🛒<span class="cartdot">3</span></div>
+    </div>
+  </div></header>
+
+  <div class="container">
+    <nav class="crumbs"><a>Головна</a><span>/</span><a>Model 3 Highland</a><span>/</span>Кузов</nav>
+
+    <div class="head">
+      <div>
+        <h1>Кузов — Tesla Model 3 Highland</h1>
+        <div class="count">Показано 1–24 із 125 товарів</div>
+      </div>
+    </div>
+
+    <div class="layout">
+      <!-- Фільтри (FR-2.4) -->
+      <aside class="filters">
+        <div class="fcard">
+          <h3>Тип запчастини</h3>
+          <label class="chk on"><span class="box"></span> Оригінал <span class="cnt">86</span></label>
+          <label class="chk"><span class="box"></span> Аналог <span class="cnt">39</span></label>
+        </div>
+        <div class="fcard">
+          <h3>Стан</h3>
+          <label class="chk on"><span class="box"></span> Новий <span class="cnt">125</span></label>
+        </div>
+        <div class="fcard">
+          <h3>Наявність</h3>
+          <label class="chk on"><span class="box"></span> В наявності <span class="cnt">112</span></label>
+          <label class="chk"><span class="box"></span> Під замовлення <span class="cnt">13</span></label>
+        </div>
+        <div class="fcard">
+          <h3>Ціна, ₴</h3>
+          <div class="track"><div class="fill"></div><div class="h" style="left:18%"></div><div class="h" style="left:70%"></div></div>
+          <div class="price"><input value="450"> <span>—</span> <input value="18 900"></div>
+        </div>
+        <div class="fcard">
+          <h3>Система авто</h3>
+          <label class="chk on"><span class="box"></span> Кузов <span class="cnt">125</span></label>
+          <label class="chk"><span class="box"></span> Підвіска <span class="cnt">98</span></label>
+          <label class="chk"><span class="box"></span> Електрика <span class="cnt">74</span></label>
+          <label class="chk"><span class="box"></span> Гальмівна система <span class="cnt">52</span></label>
+          <label class="chk"><span class="box"></span> Зовнішні ліхтарі <span class="cnt">31</span></label>
+        </div>
+        <button class="reset">Скинути фільтри</button>
+      </aside>
+
+      <!-- Контент -->
+      <div>
+        <div class="toolbar">
+          <div class="chips">
+            <span class="chip">Оригінал <span class="x">✕</span></span>
+            <span class="chip">В наявності <span class="x">✕</span></span>
+            <span class="chip">Кузов <span class="x">✕</span></span>
+            <button class="clear">Скинути всі</button>
+          </div>
+          <div class="right-tools">
+            <button class="mfilt">⚙ Фільтри</button>
+            <select>
+              <option>За замовчуванням</option>
+              <option>Спочатку популярні</option>
+              <option>Спочатку новинки</option>
+              <option>Ціна: спершу дешевші</option>
+              <option>Ціна: спершу дорожчі</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="pgrid" id="grid"></div>
+
+        <div class="pager">
+          <a class="nav">‹ Назад</a>
+          <span class="cur">1</span><a>2</a><a>3</a><a>4</a><span class="dots">…</span><a>6</a>
+          <a class="nav">Далі ›</a>
+        </div>
+        <div class="perpage">Показувати: <b class="on">24</b><b>48</b><b>96</b> на сторінці</div>
+      </div>
+    </div>
+
+    <p class="devnote">
+      Референс каталогу за FRD §3.3. Реалізує: лічильник «Показано X–Y із Z» (FR-2.1), сітка карток + пагінація 24/48/96 (FR-2.2),
+      сайдбар систем (FR-2.3), фасетні фільтри: тип / стан / наявність / ціна / система (FR-2.4), сортування (FR-2.5),
+      активні фільтри-чіпи (стан у URL — FR-2.6), хлібні крихти (FR-2.7). На вузьких екранах фільтри ховаються у drawer (кнопка «⚙ Фільтри»).
+      SEO: індексовані фасети — чистий шлях + у sitemap; ціна/наявність/сортування — <code>noindex</code> (див. seo-strategy §4.1).
+    </p>
+  </div>
+
+<script>
+  const names=[
+    ['Амортизатор капота Model 3 Highland','1645989-00-A','1 150','1 495','−23%',true],
+    ['Передній бампер Tesla Model 3','1084168-SO-E','7 450','8 200','−9%',true],
+    ['Скло лобове Tesla Model Y (2023-)','1921746-00-B','18 900','','',true],
+    ['Кронштейн гриля верхній Model X','1047020-00-E','980','','',false],
+    ['Колісний диск R18 Model 3 Highland','H3327F','6 200','6 900','−10%',true],
+    ['Завіса капота ліва Model 3','1077947-00-A','1 320','','',true],
+    ['Молдинг дверей правий Model 3','1095235-00-C','540','680','−21%',true],
+    ['Решітка бампера нижня Model Y','1494552-00-A','1 870','','',false],
+    ['Кліпса кріплення (к-т 10шт)','HX1182','120','','',true],
+    ['Підкрилок передній лівий Model 3','1084954-00-D','890','1 050','−15%',true],
+    ['Накладка порога Model 3 Highland','1660111-00-A','2 240','','',true],
+    ['Дзеркало бічне ліве Model Y','1494491-00-B','4 600','5 100','−10%',true],
+  ];
+  document.getElementById('grid').innerHTML=names.map(([n,s,p,o,sv,inst])=>`
+    <div class="card">
+      <div class="ct">
+        <div class="bs"><span class="badge acc">Новий</span>${o?'<span class="badge">Оригінал</span>':''}</div>
+        <div class="fav">♡</div>
+        фото
+      </div>
+      <div class="cn">${n}</div>
+      <div class="cs">${s}</div>
+      <div class="cstock">${inst?'● В наявності':'<span style="color:var(--muted)">під замовлення</span>'}</div>
+      <div class="cp"><span class="p">${p} ₴</span>${o?`<span class="o">${o} ₴</span><span class="sv">${sv}</span>`:''}</div>
+      <button class="cbtn">У кошик</button>
+    </div>`).join('');
+  function t(){const b=document.body;b.dataset.theme=b.dataset.theme==='light'?'dark':'light'}
+</script>
+</body>
+</html>
