@@ -1,0 +1,248 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Tesla Lviv — дизайн-система (Golden Amber)</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Unbounded:wght@300;400;500;600;700&family=Onest:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --n0:#fff;--n50:#f7f8fa;--n100:#eef0f3;--n200:#dfe3e8;--n300:#c4cad2;--n400:#9aa3ad;
+    --n500:#6b7480;--n600:#4a525c;--n700:#333a42;--n800:#20262c;--n900:#13171b;--n950:#0c0f12;
+    --a50:#FFFBEB;--a100:#FEF3C7;--a200:#FDE68A;--a300:#FCD34D;--a400:#FBBF24;
+    --a500:#F59E0B;--a600:#D97706;--a700:#B45309;--a800:#92400E;--a900:#78350F;
+    --ok:#16a34a;--sale:#dc2626;--info:#0a84ff;
+    --bg:var(--n50);--surface:var(--n0);--surface2:var(--n100);--border:var(--n200);
+    --text:var(--n900);--muted:var(--n500);
+    --accent:var(--a500);--accent-hover:var(--a600);--accent-ink:#231300;--accent-text:var(--a700);--focus:var(--a500);
+  }
+  [data-theme="dark"]{
+    --bg:var(--n950);--surface:var(--n900);--surface2:var(--n800);--border:var(--n700);
+    --text:var(--n50);--muted:var(--n400);--ok:#22c55e;--sale:#f87171;--info:#3b9eff;
+    --accent-hover:var(--a400);--accent-text:var(--a400);
+  }
+  *{box-sizing:border-box}
+  body{margin:0;font-family:'Onest',-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Arial,sans-serif;
+    background:var(--bg);color:var(--text);-webkit-font-smoothing:antialiased;transition:background .25s,color .25s}
+  a{color:var(--accent-text);text-decoration:none;font-weight:600}
+  .container{max-width:1240px;margin:0 auto;padding-left:24px;padding-right:24px}
+  .container-wide{max-width:1440px;margin:0 auto;padding-left:24px;padding-right:24px}
+  body.guides .container,body.guides .container-wide{outline:1px dashed var(--a500);outline-offset:-1px;
+    background-image:linear-gradient(var(--a50),var(--a50));background-clip:content-box}
+  [data-theme="dark"] body.guides .container,[data-theme="dark"] body.guides .container-wide{background-image:none}
+  .hdr{position:sticky;top:0;z-index:20;background:var(--surface);border-bottom:1px solid var(--border)}
+  .hdr-inner{display:flex;align-items:center;gap:20px;padding-top:14px;padding-bottom:14px}
+  .logo{font-family:'Onest',sans-serif;font-weight:800;letter-spacing:.04em;font-size:18px}
+  .nav{display:flex;gap:18px;font-size:14px}.nav a{color:var(--text);font-weight:500}
+  .search{flex:1;max-width:420px;margin:0 auto;display:flex;align-items:center;gap:8px;background:var(--surface2);
+    border:1px solid var(--border);border-radius:10px;padding:9px 14px;color:var(--muted);font-size:13px}
+  .hdr .right{display:flex;align-items:center;gap:14px}
+  .icon{width:38px;height:38px;border-radius:10px;border:1px solid var(--border);background:var(--surface);
+    display:flex;align-items:center;justify-content:center;cursor:pointer;color:var(--text);position:relative}
+  .cartdot{position:absolute;top:-6px;right:-6px;background:var(--accent);color:var(--accent-ink);font-size:10px;
+    font-weight:800;border-radius:999px;min-width:18px;height:18px;display:flex;align-items:center;justify-content:center;padding:0 4px}
+  main{padding-top:28px;padding-bottom:28px}
+  /* ===== Cinematic hero ===== */
+  .heroband{position:relative;overflow:hidden;border-bottom:1px solid var(--border);background:#0b0d10;color:#fff}
+  .heroband::before{content:"";position:absolute;inset:0;z-index:0;
+    background:
+      radial-gradient(900px 520px at 84% -12%, rgba(245,158,11,.46), transparent 60%),
+      radial-gradient(700px 620px at 8% 125%, rgba(245,158,11,.12), transparent 55%),
+      linear-gradient(180deg,#0b0d10,#0e1116)}
+  .heroband::after{content:"";position:absolute;inset:0;z-index:0;opacity:.55;
+    background-image:linear-gradient(rgba(255,255,255,.05) 1px,transparent 1px),
+      linear-gradient(90deg,rgba(255,255,255,.05) 1px,transparent 1px);background-size:64px 64px;
+    -webkit-mask-image:radial-gradient(circle at 72% 18%,#000,transparent 72%);
+    mask-image:radial-gradient(circle at 72% 18%,#000,transparent 72%)}
+  .glowwrap{position:absolute;inset:0;z-index:0;pointer-events:none;will-change:transform}
+  .glow{position:absolute;width:540px;height:540px;border-radius:50%;right:-90px;top:-130px;
+    background:radial-gradient(circle,rgba(245,158,11,.55),transparent 65%);filter:blur(22px);
+    animation:drift 9s ease-in-out infinite alternate}
+  .watermark{position:absolute;right:-50px;top:-90px;font-size:560px;font-weight:900;line-height:1;color:#fff;
+    opacity:.035;z-index:0;pointer-events:none;letter-spacing:-.06em;will-change:transform}
+  .hero{position:relative;z-index:1;padding:88px 0 76px}
+  .hero .eyebrow{color:var(--a400)}
+  .hero h1{font-family:'Unbounded','Onest',sans-serif;font-size:clamp(36px,5.2vw,66px);line-height:1.06;letter-spacing:-.02em;margin:14px 0 18px;font-weight:500;
+    background:linear-gradient(180deg,#fff,#cad0d7);-webkit-background-clip:text;background-clip:text;color:transparent}
+  .hero .lead{color:#aeb6c0;font-size:clamp(15px,1.5vw,19px);max-width:580px;margin:0 0 26px;line-height:1.5}
+  .herosearch{display:flex;align-items:center;gap:10px;background:rgba(255,255,255,.07);
+    border:1px solid rgba(255,255,255,.16);-webkit-backdrop-filter:blur(8px);backdrop-filter:blur(8px);
+    border-radius:14px;padding:15px 18px;max-width:580px;color:#cfd5dc;font-size:15px;margin-bottom:26px}
+  .heroctas{display:flex;gap:12px;flex-wrap:wrap;margin-bottom:44px}
+  .btn.light{border-color:rgba(255,255,255,.28);color:#fff;background:transparent}
+  .btn.light:hover{background:rgba(255,255,255,.1)}
+  .models{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:14px;max-width:720px}
+  .mcard{background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.12);border-radius:14px;
+    padding:18px 14px;text-align:center;cursor:pointer;transition:transform .2s,border-color .2s,background .2s;
+    opacity:0;transform:translateY(18px);animation:rise .6s forwards}
+  .mcard:hover{transform:translateY(-5px);border-color:var(--a500);background:rgba(245,158,11,.12)}
+  .mcard .m{font-weight:800;font-size:16px}.mcard .c{font-size:11px;color:#9aa3ad;margin-top:5px}
+  .mcard:nth-child(1){animation-delay:.05s}.mcard:nth-child(2){animation-delay:.12s}
+  .mcard:nth-child(3){animation-delay:.19s}.mcard:nth-child(4){animation-delay:.26s}
+  .stats{display:flex;gap:40px;margin-top:46px;flex-wrap:wrap}
+  .stat .n{font-size:26px;font-weight:800;color:#fff;line-height:1.1}
+  .stat .l{font-size:12px;color:#9aa3ad;letter-spacing:.05em;text-transform:uppercase;margin-top:4px}
+  @keyframes drift{from{transform:translate(0,0)}to{transform:translate(-44px,34px)}}
+  @keyframes rise{to{opacity:1;transform:none}}
+  /* hero-фото. УВАГА: для продакшену потрібне легальне джерело (прес-кіт Tesla / сток / власна зйомка) — див. design-principles.md §8 */
+  .herophoto{position:absolute;top:0;right:0;height:100%;width:66%;z-index:0;pointer-events:none;
+    background:url('Gemini_hero-tesla.png') center right/cover no-repeat;
+    -webkit-mask-image:linear-gradient(90deg,transparent 0%,#000 42%,#000 100%);
+            mask-image:linear-gradient(90deg,transparent 0%,#000 42%,#000 100%);
+    opacity:0;animation:heroin 1.3s .15s ease-out forwards;will-change:transform}
+  .heroscrim{position:absolute;inset:0;z-index:0;pointer-events:none;
+    background:
+      linear-gradient(90deg,#0b0d10 0%,rgba(11,13,16,.9) 28%,rgba(11,13,16,.35) 52%,transparent 72%),
+      linear-gradient(0deg,#0b0d10 0%,transparent 22%)}
+  @keyframes heroin{to{opacity:1}}
+  @media (prefers-reduced-motion:reduce){.glow,.herophoto{animation:none}.herophoto{opacity:1}.mcard{animation:none;opacity:1;transform:none}}
+  .eyebrow{color:var(--accent-text);font-size:12px;font-weight:800;letter-spacing:.1em;text-transform:uppercase}
+  .hero h1{font-size:40px;line-height:1.05;margin:12px 0 10px;font-weight:800;letter-spacing:-.02em}
+  .hero p{color:var(--muted);margin:0 0 24px;font-size:15px}
+  .btn{display:inline-flex;align-items:center;gap:8px;background:var(--accent);color:var(--accent-ink);border:none;
+    border-radius:11px;padding:13px 22px;font-size:15px;font-weight:700;cursor:pointer;transition:background .15s,transform .15s}
+  .btn:hover{background:var(--accent-hover);transform:translateY(-1px)}
+  .btn.ghost{background:transparent;border:1px solid var(--border);color:var(--text)}
+  .btn.ghost:hover{background:var(--surface2)}
+  h3.sec{font-size:13px;text-transform:uppercase;letter-spacing:.08em;color:var(--muted);margin:28px 0 14px;font-weight:700}
+  .layout{display:grid;grid-template-columns:230px 1fr;gap:24px}
+  .filters{background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:18px;height:fit-content}
+  .fg{margin-bottom:18px}.fg h4{margin:0 0 10px;font-size:13px}
+  .chk{display:flex;align-items:center;gap:8px;font-size:13px;color:var(--muted);margin:7px 0;cursor:pointer}
+  .chk .box{width:16px;height:16px;border:1.5px solid var(--n400);border-radius:4px}
+  .chk.on{color:var(--text)}.chk.on .box{background:var(--accent);border-color:var(--accent)}
+  .chips{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:16px}
+  .chip{font-size:12px;border:1px solid var(--border);border-radius:999px;padding:6px 12px;color:var(--muted)}
+  .chip.active{background:var(--accent);color:var(--accent-ink);border-color:var(--accent);font-weight:600}
+  .pgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:16px}
+  .card{background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:14px;transition:transform .15s,box-shadow .15s}
+  .card:hover{transform:translateY(-3px);box-shadow:0 12px 28px #0000001a}
+  .thumb{aspect-ratio:1;background:linear-gradient(135deg,var(--n100),var(--n200));border-radius:10px;position:relative;
+    display:flex;align-items:center;justify-content:center;color:var(--n400);font-size:12px;margin-bottom:12px}
+  [data-theme="dark"] .thumb{background:linear-gradient(135deg,var(--n800),var(--n700))}
+  .badges{position:absolute;top:8px;left:8px;display:flex;gap:5px}
+  .badge{font-size:9px;font-weight:800;padding:3px 7px;border-radius:5px;background:var(--n900);color:#fff;letter-spacing:.02em}
+  [data-theme="dark"] .badge{background:var(--n0);color:var(--n900)}
+  .badge.acc{background:var(--accent);color:var(--accent-ink)}
+  .ct{font-size:13px;font-weight:600;line-height:1.35;margin:0 0 4px}
+  .sku{font-size:11px;color:var(--muted);font-family:ui-monospace,Menlo,monospace}
+  .stock{display:inline-flex;align-items:center;gap:6px;font-size:11px;color:var(--ok);margin-top:8px;font-weight:600}
+  .stock::before{content:"";width:7px;height:7px;border-radius:50%;background:var(--ok)}
+  .pr{display:flex;align-items:baseline;gap:8px;margin:10px 0 12px}
+  .price{font-size:18px;font-weight:800}.old{font-size:12px;color:var(--muted);text-decoration:line-through}
+  .save{font-size:11px;font-weight:800;color:var(--sale)}
+  .btn.sm{width:100%;justify-content:center;padding:9px;font-size:13px;border-radius:9px}
+  .tokens{display:flex;flex-wrap:wrap;gap:6px}
+  .sw{width:64px;border-radius:8px;overflow:hidden;border:1px solid var(--border);font-size:9px}
+  .sw .c{height:40px}.sw .l{padding:3px 5px;color:var(--muted);font-family:ui-monospace,monospace}
+  .toggle{cursor:pointer;border:1px solid var(--border);background:var(--surface);color:var(--text);border-radius:999px;padding:9px 14px;font-size:13px}
+</style>
+</head>
+<body data-theme="light">
+  <div class="hdr">
+    <div class="hdr-inner container">
+      <span class="logo">TESLA LVIV</span>
+      <nav class="nav"><a>Магазин</a><a>Про нас</a><a>Контакти</a></nav>
+      <div class="search">🔍 Пошук за назвою або артикулом…</div>
+      <div class="right">
+        <button class="toggle" onclick="g()">▢ Межі</button>
+        <button class="toggle" onclick="t()">◐ Тема</button>
+        <div class="icon">♡</div>
+        <div class="icon">🛒<span class="cartdot">3</span></div>
+      </div>
+    </div>
+  </div>
+
+  <section class="heroband">
+    <div class="glowwrap"><div class="glow"></div></div>
+    <div class="herophoto" aria-hidden="true"></div>
+    <div class="heroscrim"></div>
+    <div class="watermark">T</div>
+    <div class="hero container">
+      <div class="eyebrow">Запчастини Tesla · Україна</div>
+      <h1>Знайди потрібну деталь<br>за хвилину</h1>
+      <p class="lead">Понад 1000 оригінальних та аналогових запчастин для Model 3 · Y · S · X. Підбір за моделлю, системою та артикулом.</p>
+      <div class="herosearch">🔍&nbsp; Введи назву або артикул&nbsp;&nbsp;<span style="opacity:.6">напр. 1645989-00-A</span></div>
+      <div class="heroctas">
+        <button class="btn">Обрати модель →</button>
+        <button class="btn light">Перейти в каталог</button>
+      </div>
+      <div class="models">
+        <div class="mcard"><div class="m">Model 3</div><div class="c">438 деталей</div></div>
+        <div class="mcard"><div class="m">Model Y</div><div class="c">263 деталі</div></div>
+        <div class="mcard"><div class="m">Model S</div><div class="c">84 деталі</div></div>
+        <div class="mcard"><div class="m">Model X</div><div class="c">60 деталей</div></div>
+      </div>
+      <div class="stats">
+        <div class="stat"><div class="n">1000+</div><div class="l">позицій у каталозі</div></div>
+        <div class="stat"><div class="n">6</div><div class="l">моделей Tesla</div></div>
+        <div class="stat"><div class="n">Оригінал & аналог</div><div class="l">на вибір</div></div>
+        <div class="stat"><div class="n">Доставка</div><div class="l">по всій Україні</div></div>
+      </div>
+    </div>
+  </section>
+
+  <main>
+   <div class="container">
+    <h3 class="sec">Каталог — Model 3 › Кузов</h3>
+    <div class="layout">
+      <aside class="filters">
+        <div class="fg"><h4>Модель</h4>
+          <div class="chk on"><span class="box"></span>Model 3</div>
+          <div class="chk"><span class="box"></span>Model Y</div>
+          <div class="chk"><span class="box"></span>Model S</div></div>
+        <div class="fg"><h4>Тип</h4>
+          <div class="chk on"><span class="box"></span>Оригінал</div>
+          <div class="chk"><span class="box"></span>Аналог</div></div>
+        <div class="fg"><h4>Наявність</h4>
+          <div class="chk on"><span class="box"></span>В наявності</div></div>
+      </aside>
+      <div>
+        <div class="chips">
+          <span class="chip active">Оригінал ✕</span><span class="chip active">В наявності ✕</span>
+          <span class="chip">Ціна ↑</span><a style="margin-left:auto">Скинути всі</a>
+        </div>
+        <div class="pgrid" id="pg"></div>
+      </div>
+    </div>
+
+    <h3 class="sec">Токени — Golden Amber + холодний сірий</h3>
+    <div class="tokens" id="tok"></div>
+   </div>
+  </main>
+
+<script>
+  const prods=[
+    {t:'Амортизатор капота Model 3 Highland',s:'1645989-00-A',p:'1 150',o:'1 495',d:'−23%',n:true},
+    {t:'Скло лобове Tesla Model Y (2023-)',s:'1921746-00-B',p:'18 900',o:'',d:'',n:true},
+    {t:'Передній бампер Tesla Model 3',s:'1084168-SO-E',p:'7 450',o:'8 200',d:'−9%',n:false},
+    {t:'Клаксон 400/500 Hz Model 3/Y',s:'1716494-00-A',p:'690',o:'',d:'',n:true},
+  ];
+  document.getElementById('pg').innerHTML=prods.map(p=>`
+    <div class="card">
+      <div class="thumb"><div class="badges">${p.n?'<span class="badge acc">Новий</span>':''}<span class="badge">Оригінал</span></div>фото</div>
+      <div class="ct">${p.t}</div><div class="sku">${p.s}</div>
+      <div class="stock">В наявності</div>
+      <div class="pr"><span class="price">${p.p} ₴</span>${p.o?`<span class="old">${p.o} ₴</span><span class="save">${p.d}</span>`:''}</div>
+      <button class="btn sm">У кошик</button>
+    </div>`).join('');
+  const T=[['a500','#F59E0B','accent'],['a600','#D97706','hover'],['a700','#B45309','link'],['a400','#FBBF24','dark-link'],
+    ['n0','#FFFFFF','surface'],['n50','#F7F8FA','bg'],['n200','#DFE3E8','border'],['n500','#6B7480','muted'],
+    ['n900','#13171B','text'],['ok','#16A34A','в наяв.'],['sale','#DC2626','знижка'],['info','#0A84FF','інфо']];
+  document.getElementById('tok').innerHTML=T.map(([n,c,r])=>`<div class="sw"><div class="c" style="background:${c}"></div><div class="l">${c}<br>${r}</div></div>`).join('');
+  function t(){const b=document.body;b.dataset.theme=b.dataset.theme==='light'?'dark':'light'}
+  function g(){document.body.classList.toggle('guides')}
+  // Легкий parallax hero (тільки transform; вимикається при reduced-motion)
+  if(!matchMedia('(prefers-reduced-motion: reduce)').matches){
+    const gw=document.querySelector('.glowwrap'), wm=document.querySelector('.watermark'), photo=document.querySelector('.herophoto');
+    addEventListener('scroll',()=>{const y=scrollY;
+      if(gw)gw.style.transform=`translate(${-y*0.05}px,${y*0.14}px)`;
+      if(wm)wm.style.transform=`translateY(${y*0.09}px)`;
+      if(photo)photo.style.transform=`scale(1.05) translate(${y*0.03}px,${-y*0.02}px)`;
+    },{passive:true});
+  }
+</script>
+</body>
+</html>
