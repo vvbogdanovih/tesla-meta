@@ -111,7 +111,8 @@
 > Усі значення реалізуються як CSS-змінні (design tokens) і є єдиним джерелом істини для світлої/темної тем.
 
 > 🖥️ **Живі референси:**
-> - [`assets/design-system-reference.html`](assets/design-system-reference.html) — головна: хедер, hero, каталог, токени (світла/темна тема, межі контейнера).
+> - [`assets/home-page-reference.html`](assets/home-page-reference.html) — **повна головна:** hero, обрати модель (6 категорій), переваги, популярні/новинки, блог, лід-форма підбору, футер.
+> - [`assets/design-system-reference.html`](assets/design-system-reference.html) — дизайн-система: хедер, hero, каталог, токени (світла/темна тема, межі контейнера).
 > - [`assets/product-page-reference.html`](assets/product-page-reference.html) — картка товару: галерея (фото + мініатюри знизу), бейджі, артикул-акцент, ціна, кошик, «1 клік», опис+характеристики під фото, акордеон, схожі.
 > - [`assets/catalog-page-reference.html`](assets/catalog-page-reference.html) — каталог: фасетні фільтри (sticky), сітка карток, сортування, активні фільтри-чіпи, пагінація 24/48/96, drawer на мобільному.
 
