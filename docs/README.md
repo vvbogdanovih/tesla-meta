@@ -9,6 +9,7 @@
 | [PRD.md](PRD.md) | **Product Requirements** — контекст, цілі, аудиторія, scope, епіки, user stories, ризики, фази | Draft v1.0 |
 | [FRD.md](FRD.md) | **Functional Requirements** — архітектура, sitemap, FR по компонентах, API, моделі даних, NFR | Draft v1.0 |
 | [db-schema.md](db-schema.md) | **Модель БД (PostgreSQL + Prisma)** — ER-діаграма, Prisma-схема, enum'и, індекси, запити | Draft v1.1 |
+| [backend-architecture.md](backend-architecture.md) | **Архітектура бекенду (NestJS)** — модулі, шари, auth/RBAC, інтеграції, ETL, структура | Draft v1.0 |
 | [current-site-audit.md](current-site-audit.md) | **Аудит чинного сайту** — фактичний стан teslalviv.com, що зберегти, реальні слабкі місця | v1.0 |
 | [seo-strategy.md](seo-strategy.md) | **SEO-стратегія** — міграція без втрат, технічний фундамент, фасети, приріст | Draft v1.0 |
 | [design-principles.md](design-principles.md) | **Дизайн-принципи** — візуальна мова, теми, типографіка, рух, компоненти | Draft v1.0 |
