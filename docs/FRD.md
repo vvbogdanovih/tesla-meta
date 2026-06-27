@@ -1,17 +1,18 @@
 # FRD — Tesla Lviv (нова версія)
 
 **Документ:** Functional Requirements Document
-**Версія:** 1.1
+**Версія:** 1.2
 **Дата:** 27.06.2026
-**Стек:** Next.js · NestJS · MongoDB · S3
+**Стек:** Next.js · NestJS · **PostgreSQL** · S3
 **Супровідний документ:** [PRD.md](PRD.md)
+**Архітектурні рішення:** [ADR-0002](adr/0002-catalog-compatibility-architecture.md) (каталог/сумісність) · [ADR-0003](adr/0003-database-postgresql.md) (PostgreSQL)
 
 ---
 
 ## 1. Архітектура (огляд)
 
 ```
-[Next.js (SSR/ISR, клієнт)] ──REST/GraphQL──> [NestJS API] ──> [MongoDB]
+[Next.js (SSR/ISR, клієнт)] ──REST/GraphQL──> [NestJS API] ──> [PostgreSQL]
                                                      │
                                                      ├──> [S3] (зображення товарів, OG)
                                                      ├──> [Платіжний шлюз] (еквайринг Visa/MC)
@@ -20,8 +21,8 @@
 ```
 
 - **Next.js** — рендеринг сторінок (SSR для SEO-критичних, ISR для каталогу/товарів), клієнтська інтерактивність, кошик.
-- **NestJS** — REST API: товари, категорії, кошик, замовлення, користувачі, ліди, контент.
-- **MongoDB** — основне сховище. Колекції нижче в §7.
+- **NestJS** — REST API: товари, сумісність/довідник авто, системи, кошик, замовлення, користувачі, ліди, контент. ORM: Prisma/TypeORM.
+- **PostgreSQL** — реляційне сховище: довідник авто, M2M-сумісність, товари, замовлення (схема в §7). JSONB для гнучких атрибутів.
 - **S3** — зберігання та роздача зображень (з CDN), генерація OG-зображень.
 
 ---
@@ -73,13 +74,14 @@
 ### 3.3 Каталог: категорія / підкатегорія (P3, P4)
 - **FR-2.1:** Заголовок категорії + лічильник `Показано X–Y із Z`.
 - **FR-2.2:** Грід карток товару, пагінація (12/24/48 на сторінку, конфігуровано).
-- **FR-2.3:** Сайдбар із деревом категорій (модель → системи авто).
+- **FR-2.3:** Сайдбар навігації: модель авто (фільтр сумісності) → системи авто (глобальні). *(Модель — не власник товару, а фільтр сумісності — ADR-0002.)*
 - **FR-2.4 [НОВЕ]:** Панель фасетних фільтрів:
+  - **Модель/покоління авто** (сумісність, multi-select — товар може підходити до кількох)
   - Стан: Новий
   - Тип: Оригінал / Аналог
   - Наявність: В наявності / під замовлення
   - Діапазон ціни (slider, мін–макс)
-  - Підкатегорія (система авто)
+  - Система авто
 - **FR-2.5:** Сортування: за замовчуванням / популярністю / новизною / ціна ↑ / ціна ↓.
 - **FR-2.6:** Фільтри відображаються в URL (shareable, SSR-friendly): `?type=original&inStock=true&minPrice=...`.
 - **FR-2.7:** Хлібні крихти.
@@ -90,11 +92,11 @@
 
 - **FR-3.1:** Галерея зображень (до 10+) з мініатюрами та зумом/лайтбоксом.
 - **FR-3.2:** Бейджі: Стан (Новий), Тип (Оригінал/Аналог), Наявність (В наявності).
-- **FR-3.3:** Назва, артикул (код запчастини), категорія, модель авто.
+- **FR-3.3:** Назва, артикул (код запчастини), система; **«Сумісність» — список усіх сумісних моделей/поколінь** (а не одна модель), напр. «Підходить до: Model 3, Model Y, Model 3 Highland».
 - **FR-3.4:** Ціна: поточна + закреслена стара (якщо є знижка) + % знижки.
 - **FR-3.5:** Лічильник кількості + «Додати в кошик».
 - **FR-3.6:** «Купити в 1 клік» — модалка з мін. полями (Ім'я, Телефон).
-- **FR-3.7:** Таблиця характеристик: Стан, Модель авто, Код запчастини, Тип запчастини.
+- **FR-3.7:** Таблиця характеристик: Стан, Сумісність (моделі/покоління), Код запчастини, Тип запчастини, Система.
 - **FR-3.8:** Спадні блоки (accordion): Гарантія, Умови доставки та оплати.
 - **FR-3.9 [Фаза 2]:** «Знайшли дешевше?» — модалка (Ім'я, Телефон, посилання).
 - **FR-3.10 [Фаза 2]:** «Підписка на зміну ціни» — модалка (бажана ціна + контакт).
@@ -169,11 +171,12 @@
 
 | Метод | Ендпоінт | Опис |
 |-------|----------|------|
-| GET | `/api/products` | Список з фільтрами/сортуванням/пагінацією |
-| GET | `/api/products/:slug` | Деталі товару |
-| GET | `/api/products/search?q=` | Пошук + автодоповнення |
-| GET | `/api/categories` | Дерево категорій |
-| GET | `/api/categories/:slug/products` | Товари категорії |
+| GET | `/api/products?car=&system=&type=&inStock=&minPrice=` | Список з фільтрами (вкл. **сумісність за авто**), сортуванням, пагінацією |
+| GET | `/api/products/:slug` | Деталі товару (зі списком сумісності) |
+| GET | `/api/products/search?q=` | Пошук + автодоповнення (назва + артикул) |
+| GET | `/api/cars` | Довідник авто (моделі/покоління) — для фільтра й VIN |
+| GET | `/api/systems` | Дерево систем (глобальне) |
+| GET | `/api/systems/:slug/products?car=` | Товари системи (опц. фільтр за авто) |
 | POST | `/api/cart` / `PATCH` / `DELETE` | Операції з кошиком |
 | POST | `/api/orders` | Створення замовлення |
 | GET | `/api/orders/:id` | Деталі замовлення |
@@ -187,62 +190,100 @@
 
 ---
 
-## 6. Моделі даних (MongoDB, орієнтовні схеми)
+## 6. Моделі даних (PostgreSQL, орієнтовна схема)
 
-### Product
+> Ключова зміна (ADR-0002): **сумісність відокремлено від таксономії**. Товар — один запис; модель авто — через довідник `cars` і M2M-таблицю `product_fitment`; системи — глобальний довідник.
+
+### cars — довідник автомобілів (рівень покоління/фейсліфта)
 ```
-{
-  _id, slug, name, sku,                 // артикул (код запчастини)
-  price, oldPrice,                       // поточна / стара ціна
-  condition: "new",                      // стан
-  type: "original" | "analog",           // тип запчастини
-  inStock: boolean,
-  carModel: "model_3" | "model_y" | ...,
-  categoryId, subCategoryId,             // модель → система авто
-  images: [{ url, alt, order }],         // S3 URLs
-  attributes: { ... },                   // характеристики
-  description, warranty, deliveryTerms,
-  relatedIds: [],
-  seo: { title, description, ogImage },
-  createdAt, updatedAt
-}
+cars(
+  id PK,
+  brand            text,                 -- Tesla
+  model            text,                 -- Model 3 / Model Y / Model S / Model X
+  generation       text,                 -- Pre-facelift / Highland / Phase 1 / Juniper
+  slug             text unique,          -- model-3-highland
+  production_start date,
+  production_end   date null             -- null = у виробництві
+)
 ```
 
-### Category
+### systems — глобальний довідник систем авто (спільний для всіх моделей)
 ```
-{ _id, slug, name, parentId, carModel, order, productCount, seo }
-```
-
-### Order
-```
-{
-  _id, orderNumber, userId?,             // null для гостя
-  items: [{ productId, name, sku, price, qty }],
-  total, customer: { name, phone, email },
-  delivery: { method, city, warehouse },
-  payment: { method, status },
-  status: "new"|"processing"|"shipped"|"done"|"canceled",
-  isOneClick: boolean,
-  createdAt
-}
+systems(
+  id PK, slug unique, name,              -- kuzov / «Кузов»
+  parent_id FK null → systems.id,        -- підсистеми за потреби
+  sort_order int, seo jsonb
+)
 ```
 
-### User
+### products — товар (один запис, унікальний артикул)
 ```
-{ _id, email, phone, passwordHash, name, addresses: [], role, createdAt }
+products(
+  id PK, slug unique, name,
+  sku           text unique,             -- артикул / код запчастини
+  price         numeric, old_price numeric null,
+  condition     text default 'new',
+  type          text,                    -- 'original' | 'analog'
+  in_stock      boolean, stock_qty int,
+  system_id     FK → systems.id,         -- одна система
+  attributes    jsonb,                   -- гнучкі характеристики
+  description   text, warranty text, delivery_terms text,
+  seo           jsonb,                   -- { title, description, ogImage }
+  created_at, updated_at
+)
 ```
 
-### Lead
+### product_fitment — M2M сумісність товар ↔ авто
 ```
-{ _id, type: "fitment"|"price_match"|"price_subscribe"|"contact",
-  name, phone, email?, vin?, link?, targetPrice?, productId?, message?,
-  status: "new"|"handled", createdAt }
+product_fitment(
+  product_id FK → products.id,
+  car_id     FK → cars.id,
+  year_from  int null, year_to int null, -- уточнення в межах покоління (опц.)
+  PRIMARY KEY (product_id, car_id)
+)
 ```
 
-### BlogPost
+### product_images / related
 ```
-{ _id, slug, title, excerpt, content, coverImage, author, category, publishedAt, seo }
+product_images(id PK, product_id FK, url, alt, sort_order)   -- S3 URLs
+product_related(product_id FK, related_id FK → products.id, PK(product_id, related_id))
 ```
+
+### orders / order_items
+```
+orders(
+  id PK, order_number text unique, user_id FK null,          -- null для гостя
+  customer jsonb,                          -- { name, phone, email }
+  delivery jsonb,                          -- { method: np|ukrposhta|pickup, city, warehouse }
+  payment  jsonb,                          -- { method: card|cod|iban|cash, status }
+  total numeric, status text,              -- new|processing|shipped|done|canceled
+  is_one_click boolean, comment text, created_at
+)
+order_items(id PK, order_id FK, product_id FK, name, sku, price, qty)
+```
+
+### users / addresses
+```
+users(id PK, email unique, phone, password_hash, first_name, last_name, role, created_at)
+addresses(id PK, user_id FK, label, method, city, warehouse, recipient)
+```
+
+### leads
+```
+leads(
+  id PK, type text,                        -- fitment|price_match|price_subscribe|contact
+  name, phone, email null, vin null, link null,
+  target_price numeric null, product_id FK null, message null,
+  status text default 'new', created_at
+)
+```
+
+### blog_posts
+```
+blog_posts(id PK, slug unique, title, excerpt, content, cover_image, author, category, published_at, seo jsonb)
+```
+
+> Запит «товари для авто X»: `products JOIN product_fitment ON … WHERE car_id = :id [AND system_id = :sys]`. VIN-підбір (Фаза 3): VIN → `cars` → сумісні товари.
 
 ---
 

@@ -14,3 +14,5 @@
 | # | Рішення | Статус | Дата |
 |---|---------|--------|------|
 | [0001](0001-url-structure-and-redirects.md) | Структура URL та стратегія редиректів | Proposed | 27.06.2026 |
+| [0002](0002-catalog-compatibility-architecture.md) | Каталог: довідник авто, M2M-сумісність, глобальні системи | Accepted | 27.06.2026 |
+| [0003](0003-database-postgresql.md) | PostgreSQL замість MongoDB | Accepted | 27.06.2026 |

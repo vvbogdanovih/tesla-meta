@@ -115,7 +115,10 @@
   .meta .copy:hover{opacity:1;background:var(--a50)}
   [data-theme="dark"] .meta .copy:hover{background:#2a1d05}
   .meta .copy.copied{color:var(--ok);opacity:1}
-  .stock{display:inline-flex;align-items:center;gap:7px;font-size:13px;color:var(--ok);font-weight:600;margin-bottom:18px}
+  .stock{display:inline-flex;align-items:center;gap:7px;font-size:13px;color:var(--ok);font-weight:600;margin-bottom:14px}
+  .fitment{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:18px}
+  .fitment .flabel{font-size:13px;color:var(--muted);font-weight:600}
+  .fitment .fchip{font-size:12px;font-weight:600;border:1px solid var(--border);border-radius:999px;padding:5px 11px;background:var(--surface2)}
   .stock::before{content:"";width:8px;height:8px;border-radius:50%;background:var(--ok)}
 
   .pricebox{background:var(--surface2);border:1px solid var(--border);border-radius:14px;padding:18px;margin-bottom:18px}
@@ -228,7 +231,7 @@
             <ul class="feat">
               <li>Оригінальна деталь Tesla (OEM)</li>
               <li>Підходить на ліву / праву сторону</li>
-              <li>Сумісність: Model 3 Highland, 2024-</li>
+              <li>Сумісність: Model 3, Model Y, Model 3 Highland</li>
               <li>Артикул виробника: 1645989-00-A</li>
             </ul>
           </section>
@@ -237,7 +240,7 @@
             <h2>Характеристики</h2>
             <table class="specs">
               <tr><td>Стан</td><td>Новий</td></tr>
-              <tr><td>Модель авто</td><td>Tesla Model 3 Highland (2024-)</td></tr>
+              <tr><td>Сумісність</td><td>Tesla Model 3 · Model Y · Model 3 Highland</td></tr>
               <tr><td>Код запчастини (артикул)</td><td class="mono">1645989-00-A</td></tr>
               <tr><td>Тип запчастини</td><td>Оригінал</td></tr>
               <tr><td>Система авто</td><td>Кузов</td></tr>
@@ -271,9 +274,13 @@
           <span class="skuLabel">Артикул:</span>
           <span class="sku">1645989-00-A</span>
           <button class="copy" onclick="copySku(this)" title="Скопіювати артикул">⧉</button>
-          <span class="dot">·</span> Модель: <b>Model 3 Highland</b>
+          <span class="dot">·</span> Система: <b>Кузов</b>
         </div>
         <div class="stock">В наявності — відправка сьогодні</div>
+        <div class="fitment">
+          <span class="flabel">Сумісність:</span>
+          <span class="fchip">Model 3</span><span class="fchip">Model Y</span><span class="fchip">Model 3 Highland</span>
+        </div>
 
         <div class="pricebox">
           <div class="prow">
