@@ -139,7 +139,7 @@ CREATE TYPE order_status     AS ENUM ('new','processing','shipped','done','cance
 CREATE TYPE delivery_method  AS ENUM ('np','ukrposhta','pickup');
 CREATE TYPE payment_method   AS ENUM ('card','cod','iban','cash');
 CREATE TYPE payment_status   AS ENUM ('pending','paid','failed','refunded');
-CREATE TYPE user_role        AS ENUM ('admin','manager','content','customer');
+CREATE TYPE user_role        AS ENUM ('user','admin','superadmin');  -- user=покупець
 CREATE TYPE lead_type        AS ENUM ('fitment','price_match','price_subscribe','contact');
 CREATE TYPE lead_status      AS ENUM ('new','handled');
 ```
@@ -229,7 +229,7 @@ CREATE TABLE users (
   password_hash text,
   first_name    text,
   last_name     text,
-  role          user_role NOT NULL DEFAULT 'customer',
+  role          user_role NOT NULL DEFAULT 'user',
   created_at    timestamptz NOT NULL DEFAULT now()
 );
 
