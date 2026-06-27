@@ -138,16 +138,18 @@ create(@Body() dto: CreateProductDto) { … }
 
 ## 9. Структура папок (орієнтовно)
 
+> **Prisma 7** з `prisma.config.ts` (корінь) і драйвер-адаптером `@prisma/adapter-pg`; схема та міграції — під `src/database/prisma/`.
+
 ```
 tesla-backend/
-├── prisma/
-│   ├── schema.prisma            # див. db-schema.md
-│   └── migrations/
+├── prisma.config.ts             # Prisma 7 config (schema/migrations/seed paths)
 ├── src/
 │   ├── main.ts
 │   ├── app.module.ts
-│   ├── common/                  # guards, pipes, filters, decorators, interceptors
-│   ├── prisma/                  # PrismaService, PrismaModule
+│   ├── common/                  # constants(env,endpoints), guards, decorators, strategies, types
+│   ├── database/prisma/         # PrismaService(+adapter), PrismaModule, filter, seed
+│   │   ├── schemas/schema.prisma # див. db-schema.md
+│   │   └── migrations/
 │   ├── config/
 │   ├── modules/
 │   │   ├── auth/                # controller, service, dto, strategies, guards

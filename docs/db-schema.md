@@ -289,6 +289,8 @@ model Lead {
   targetPrice Decimal?   @map("target_price") @db.Decimal(12, 2)  // type = price_subscribe
   productId   BigInt?    @map("product_id")
   product     Product?   @relation(fields: [productId], references: [id], onDelete: SetNull)
+  userId      BigInt?    @map("user_id")                           // якщо лід від авторизованого
+  user        User?      @relation(fields: [userId], references: [id], onDelete: SetNull)
   message     String?
   status      LeadStatus @default(new)
   createdAt   DateTime   @default(now()) @map("created_at")
