@@ -49,8 +49,15 @@
   .crumbs span{margin:0 8px;opacity:.5}
 
   /* Product layout */
-  .product{display:grid;grid-template-columns:1fr 440px;gap:40px;padding:14px 0 40px}
+  .product{display:grid;grid-template-columns:1fr 440px;gap:40px;padding:14px 0 40px;align-items:start}
   @media(max-width:920px){.product{grid-template-columns:1fr;gap:28px}}
+  .pleft{min-width:0}
+  .belowphoto{margin-top:40px;display:flex;flex-direction:column;gap:36px}
+  .pblock h2{font-size:20px;margin:0 0 14px;font-weight:700}
+  .pblock p{font-size:15px;line-height:1.65;color:var(--text);margin:0 0 14px}
+  .feat{margin:0;padding:0;list-style:none;display:flex;flex-direction:column;gap:8px}
+  .feat li{position:relative;padding-left:26px;font-size:14px;color:var(--text)}
+  .feat li::before{content:"✓";position:absolute;left:0;top:0;color:var(--accent-text);font-weight:800}
 
   /* Gallery */
   .gallery{display:flex;flex-direction:column;gap:14px}
@@ -122,13 +129,13 @@
   /* Sections */
   .section{padding:34px 0;border-top:1px solid var(--border)}
   h2{font-size:22px;margin:0 0 18px;font-weight:700}
-  .specs{width:100%;border-collapse:collapse;max-width:680px}
+  .specs{width:100%;border-collapse:collapse}
   .specs td{padding:12px 0;border-bottom:1px solid var(--border);font-size:14px}
   .specs td:first-child{color:var(--muted);width:240px}
   .specs td:last-child{font-weight:600}
   .specs .mono{font-family:ui-monospace,Menlo,monospace;font-weight:500}
 
-  .acc{border:1px solid var(--border);border-radius:12px;overflow:hidden;max-width:760px}
+  .acc{border:1px solid var(--border);border-radius:12px;overflow:hidden}
   .acc details{border-bottom:1px solid var(--border)}.acc details:last-child{border-bottom:none}
   .acc summary{cursor:pointer;padding:16px 18px;font-weight:600;font-size:15px;list-style:none;display:flex;justify-content:space-between}
   .acc summary::-webkit-details-marker{display:none}
@@ -171,18 +178,58 @@
     </nav>
 
     <div class="product">
-      <!-- Галерея (FR-3.1) -->
-      <div class="gallery">
-        <div class="stage">
-          <div class="gbadges">
-            <span class="badge acc">Новий</span><span class="badge">Оригінал</span>
+      <div class="pleft">
+        <!-- Галерея (FR-3.1) -->
+        <div class="gallery">
+          <div class="stage">
+            <div class="gbadges">
+              <span class="badge acc">Новий</span><span class="badge">Оригінал</span>
+            </div>
+            головне фото товару
+            <span class="zoom">🔍 Наведіть для зуму</span>
           </div>
-          головне фото товару
-          <span class="zoom">🔍 Наведіть для зуму</span>
+          <div class="thumbs">
+            <div class="thumb on">1</div><div class="thumb">2</div><div class="thumb">3</div>
+            <div class="thumb">4</div><div class="thumb">5</div><div class="thumb">+5</div>
+          </div>
         </div>
-        <div class="thumbs">
-          <div class="thumb on">1</div><div class="thumb">2</div><div class="thumb">3</div>
-          <div class="thumb">4</div><div class="thumb">5</div><div class="thumb">+5</div>
+
+        <!-- Під фото: опис, характеристики, гарантія/доставка -->
+        <div class="belowphoto">
+          <section class="pblock">
+            <h2>Опис</h2>
+            <p>Оригінальний амортизатор капота для Tesla Model 3 Highland (2024-). Підходить як на ліву, так і на праву сторону. Забезпечує плавне відкриття та надійну фіксацію капота у відкритому положенні.</p>
+            <ul class="feat">
+              <li>Оригінальна деталь Tesla (OEM)</li>
+              <li>Підходить на ліву / праву сторону</li>
+              <li>Сумісність: Model 3 Highland, 2024-</li>
+              <li>Артикул виробника: 1645989-00-A</li>
+            </ul>
+          </section>
+
+          <section class="pblock">
+            <h2>Характеристики</h2>
+            <table class="specs">
+              <tr><td>Стан</td><td>Новий</td></tr>
+              <tr><td>Модель авто</td><td>Tesla Model 3 Highland (2024-)</td></tr>
+              <tr><td>Код запчастини (артикул)</td><td class="mono">1645989-00-A</td></tr>
+              <tr><td>Тип запчастини</td><td>Оригінал</td></tr>
+              <tr><td>Система авто</td><td>Кузов</td></tr>
+              <tr><td>Сторона</td><td>Лівий / правий</td></tr>
+            </table>
+          </section>
+
+          <section class="pblock">
+            <h2>Гарантія та доставка</h2>
+            <div class="acc">
+              <details open><summary>Гарантія та повернення</summary><div class="body">
+                Гарантія на оригінальні запчастини. Повернення впродовж 14 днів за збереження товарного вигляду й комплектації.
+              </div></details>
+              <details><summary>Доставка та оплата</summary><div class="body">
+                Доставка Новою Поштою або Укрпоштою по всій Україні. Оплата: Visa/Mastercard онлайн або накладений платіж. Відправка в день замовлення за наявності.
+              </div></details>
+            </div>
+          </section>
         </div>
       </div>
 
@@ -227,35 +274,6 @@
       </div>
     </div>
   </div>
-
-  <!-- Характеристики (FR-3.7) -->
-  <section class="section"><div class="container">
-    <h2>Характеристики</h2>
-    <table class="specs">
-      <tr><td>Стан</td><td>Новий</td></tr>
-      <tr><td>Модель авто</td><td>Tesla Model 3 Highland (2024-)</td></tr>
-      <tr><td>Код запчастини (артикул)</td><td class="mono">1645989-00-A</td></tr>
-      <tr><td>Тип запчастини</td><td>Оригінал</td></tr>
-      <tr><td>Система авто</td><td>Кузов</td></tr>
-      <tr><td>Сторона</td><td>Лівий / правий</td></tr>
-    </table>
-  </div></section>
-
-  <!-- Опис + акордеон (FR-3.8) -->
-  <section class="section"><div class="container">
-    <h2>Опис, гарантія, доставка</h2>
-    <div class="acc">
-      <details open><summary>Опис товару</summary><div class="body">
-        Оригінальний амортизатор капота для Tesla Model 3 Highland (2024-). Підходить на ліву та праву сторону. Забезпечує плавне відкриття та фіксацію капота. Артикул 1645989-00-A.
-      </div></details>
-      <details><summary>Гарантія</summary><div class="body">
-        Гарантія на оригінальні запчастини. Умови повернення впродовж 14 днів за збереження товарного вигляду.
-      </div></details>
-      <details><summary>Доставка та оплата</summary><div class="body">
-        Доставка Новою Поштою або Укрпоштою по всій Україні. Оплата: Visa/Mastercard онлайн або накладений платіж. Відправка в день замовлення при наявності.
-      </div></details>
-    </div>
-  </div></section>
 
   <!-- Схожі (FR-3.11) -->
   <section class="section"><div class="container">
