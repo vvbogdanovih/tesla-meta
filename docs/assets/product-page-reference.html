@@ -1,0 +1,297 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Tesla Lviv — картка товару (референс)</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Unbounded:wght@300;400;500;600;700&family=Onest:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --n0:#fff;--n50:#f7f8fa;--n100:#eef0f3;--n200:#dfe3e8;--n300:#c4cad2;--n400:#9aa3ad;
+    --n500:#6b7480;--n600:#4a525c;--n700:#333a42;--n800:#20262c;--n900:#13171b;--n950:#0c0f12;
+    --a50:#FFFBEB;--a400:#FBBF24;--a500:#F59E0B;--a600:#D97706;--a700:#B45309;
+    --ok:#16a34a;--sale:#dc2626;--info:#0a84ff;
+    --bg:var(--n50);--surface:var(--n0);--surface2:var(--n100);--border:var(--n200);
+    --text:var(--n900);--muted:var(--n500);
+    --accent:var(--a500);--accent-hover:var(--a600);--accent-ink:#231300;--accent-text:var(--a700);
+    --container:1240px;--gutter:24px;
+  }
+  [data-theme="dark"]{
+    --bg:var(--n950);--surface:var(--n900);--surface2:var(--n800);--border:var(--n700);
+    --text:var(--n50);--muted:var(--n400);--ok:#22c55e;--sale:#f87171;--info:#3b9eff;
+    --accent-hover:var(--a400);--accent-text:var(--a400);
+  }
+  *{box-sizing:border-box}
+  body{margin:0;font-family:'Onest',-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Arial,sans-serif;
+    background:var(--bg);color:var(--text);-webkit-font-smoothing:antialiased;transition:background .25s,color .25s}
+  a{color:var(--accent-text);text-decoration:none}
+  .container{max-width:var(--container);margin:0 auto;padding-left:var(--gutter);padding-right:var(--gutter)}
+
+  /* Header */
+  .hdr{position:sticky;top:0;z-index:20;background:var(--surface);border-bottom:1px solid var(--border)}
+  .hdr-inner{display:flex;align-items:center;gap:20px;padding-top:14px;padding-bottom:14px}
+  .logo{font-weight:800;letter-spacing:.04em;font-size:18px;color:var(--text)}
+  .nav{display:flex;gap:18px;font-size:14px}.nav a{color:var(--text);font-weight:500}
+  .search{flex:1;max-width:420px;margin:0 auto;display:flex;align-items:center;gap:8px;background:var(--surface2);
+    border:1px solid var(--border);border-radius:10px;padding:9px 14px;color:var(--muted);font-size:13px}
+  .hdr .right{display:flex;align-items:center;gap:12px}
+  .icon{width:38px;height:38px;border-radius:10px;border:1px solid var(--border);background:var(--surface);
+    display:flex;align-items:center;justify-content:center;cursor:pointer;color:var(--text);position:relative}
+  .cartdot{position:absolute;top:-6px;right:-6px;background:var(--accent);color:var(--accent-ink);font-size:10px;
+    font-weight:800;border-radius:999px;min-width:18px;height:18px;display:flex;align-items:center;justify-content:center;padding:0 4px}
+  .toggle{cursor:pointer;border:1px solid var(--border);background:var(--surface);color:var(--text);border-radius:999px;padding:9px 14px;font-size:13px}
+
+  /* Breadcrumbs */
+  .crumbs{font-size:13px;color:var(--muted);padding:18px 0 6px}
+  .crumbs a{color:var(--muted)}.crumbs a:hover{color:var(--accent-text)}
+  .crumbs span{margin:0 8px;opacity:.5}
+
+  /* Product layout */
+  .product{display:grid;grid-template-columns:1fr 440px;gap:40px;padding:14px 0 40px}
+  @media(max-width:920px){.product{grid-template-columns:1fr;gap:28px}}
+
+  /* Gallery */
+  .gallery{display:flex;flex-direction:column;gap:14px}
+  .thumbs{display:flex;flex-direction:row;gap:10px;flex-wrap:wrap}
+  .thumb{width:84px;aspect-ratio:1;border:1px solid var(--border);border-radius:10px;background:linear-gradient(135deg,var(--n100),var(--n200));
+    cursor:pointer;display:flex;align-items:center;justify-content:center;color:var(--n400);font-size:10px;flex:0 0 auto}
+  [data-theme="dark"] .thumb{background:linear-gradient(135deg,var(--n800),var(--n700))}
+  .thumb.on{border-color:var(--accent);box-shadow:0 0 0 1px var(--accent)}
+  .stage{position:relative;aspect-ratio:4/3;border:1px solid var(--border);border-radius:16px;overflow:hidden;
+    background:linear-gradient(135deg,var(--n100),var(--n200));display:flex;align-items:center;justify-content:center;
+    color:var(--n400);font-size:14px;cursor:zoom-in}
+  [data-theme="dark"] .stage{background:linear-gradient(135deg,var(--n800),var(--n700))}
+  .stage .zoom{position:absolute;right:12px;bottom:12px;background:var(--surface);border:1px solid var(--border);
+    border-radius:8px;padding:6px 10px;font-size:12px;color:var(--muted)}
+  .gbadges{position:absolute;top:14px;left:14px;display:flex;gap:6px;flex-wrap:wrap}
+
+  /* Badges */
+  .badge{font-size:11px;font-weight:700;padding:5px 9px;border-radius:6px;background:var(--n900);color:#fff;letter-spacing:.02em}
+  [data-theme="dark"] .badge{background:var(--n0);color:var(--n900)}
+  .badge.acc{background:var(--accent);color:var(--accent-ink)}
+  .badge.ok{background:transparent;color:var(--ok);border:1px solid var(--ok)}
+
+  /* Info column */
+  .info{align-self:start;position:sticky;top:84px}
+  .brow{display:flex;align-items:center;gap:6px;margin-bottom:12px}
+  .brow .save{margin-left:auto;display:inline-flex;align-items:center;gap:7px;color:var(--text);font-size:13px;font-weight:600;
+    white-space:nowrap;cursor:pointer;border:1px solid var(--border);border-radius:9px;padding:7px 12px;background:var(--surface);transition:border-color .15s,color .15s}
+  .brow .save:hover{color:var(--accent-text);border-color:var(--accent)}
+  .brow .save .i{font-size:15px}
+  h1{font-size:26px;line-height:1.25;margin:0 0 8px;font-weight:700;letter-spacing:-.01em}
+  .meta{font-size:14px;color:var(--muted);margin-bottom:18px;display:flex;align-items:center;gap:8px;flex-wrap:wrap;line-height:1.9}
+  .meta .dot{opacity:.45}
+  .meta b{color:var(--text);font-weight:600}
+  .meta .skuLabel{color:var(--muted)}
+  .meta .sku{font-family:ui-monospace,Menlo,monospace;font-weight:700;color:var(--accent-text);font-size:14px;letter-spacing:.02em}
+  .meta .copy{border:none;background:transparent;color:var(--accent-text);cursor:pointer;font-size:14px;padding:2px 5px;line-height:1;border-radius:5px;opacity:.7}
+  .meta .copy:hover{opacity:1;background:var(--a50)}
+  [data-theme="dark"] .meta .copy:hover{background:#2a1d05}
+  .meta .copy.copied{color:var(--ok);opacity:1}
+  .stock{display:inline-flex;align-items:center;gap:7px;font-size:13px;color:var(--ok);font-weight:600;margin-bottom:18px}
+  .stock::before{content:"";width:8px;height:8px;border-radius:50%;background:var(--ok)}
+
+  .pricebox{background:var(--surface2);border:1px solid var(--border);border-radius:14px;padding:18px;margin-bottom:18px}
+  .prow{display:flex;align-items:baseline;gap:12px;flex-wrap:wrap}
+  .price{font-size:34px;font-weight:800;letter-spacing:-.02em}
+  .old{font-size:17px;color:var(--muted);text-decoration:line-through}
+  .save{font-size:13px;font-weight:800;color:#fff;background:var(--sale);border-radius:6px;padding:3px 8px}
+
+  .buy{display:flex;gap:10px;margin-top:16px}
+  .qty{display:inline-flex;align-items:center;border:1px solid var(--border);border-radius:11px;background:var(--surface);overflow:hidden}
+  .qty button{width:42px;height:48px;border:none;background:transparent;color:var(--text);font-size:18px;cursor:pointer}
+  .qty input{width:44px;height:48px;border:none;text-align:center;background:transparent;color:var(--text);font-size:16px;font-weight:600}
+  .btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;border:none;border-radius:11px;
+    padding:0 22px;height:48px;font-family:inherit;font-size:15px;font-weight:700;cursor:pointer;transition:background .15s,transform .15s}
+  .btn.primary{flex:1;background:var(--accent);color:var(--accent-ink)}
+  .btn.primary:hover{background:var(--accent-hover);transform:translateY(-1px)}
+  .btn.ghost{width:100%;margin-top:10px;background:transparent;border:1px solid var(--border);color:var(--text)}
+  .btn.ghost:hover{background:var(--surface2)}
+  .miniLinks{display:flex;gap:22px;margin-top:16px;font-size:13px;font-weight:600;flex-wrap:wrap}
+  .miniLinks a{display:inline-flex;align-items:center;gap:7px;color:var(--muted);white-space:nowrap}
+  .miniLinks a:hover{color:var(--accent-text)}
+  .miniLinks .i{font-size:15px}
+  .miniLinks .ph2{font-style:normal;font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.04em;
+    color:var(--muted);opacity:.55;border:1px solid var(--border);border-radius:4px;padding:1px 5px}
+
+  .trust{display:flex;gap:18px;margin-top:18px;flex-wrap:wrap;font-size:12px;color:var(--muted)}
+  .trust div{display:flex;align-items:center;gap:7px}
+
+  /* Sections */
+  .section{padding:34px 0;border-top:1px solid var(--border)}
+  h2{font-size:22px;margin:0 0 18px;font-weight:700}
+  .specs{width:100%;border-collapse:collapse;max-width:680px}
+  .specs td{padding:12px 0;border-bottom:1px solid var(--border);font-size:14px}
+  .specs td:first-child{color:var(--muted);width:240px}
+  .specs td:last-child{font-weight:600}
+  .specs .mono{font-family:ui-monospace,Menlo,monospace;font-weight:500}
+
+  .acc{border:1px solid var(--border);border-radius:12px;overflow:hidden;max-width:760px}
+  .acc details{border-bottom:1px solid var(--border)}.acc details:last-child{border-bottom:none}
+  .acc summary{cursor:pointer;padding:16px 18px;font-weight:600;font-size:15px;list-style:none;display:flex;justify-content:space-between}
+  .acc summary::-webkit-details-marker{display:none}
+  .acc summary::after{content:"+";color:var(--muted);font-size:18px}
+  .acc details[open] summary::after{content:"–"}
+  .acc .body{padding:0 18px 18px;color:var(--muted);font-size:14px;line-height:1.6}
+
+  /* Related */
+  .pgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(210px,1fr));gap:16px}
+  .card{background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:14px;transition:transform .15s,box-shadow .15s}
+  .card:hover{transform:translateY(-3px);box-shadow:0 12px 28px #0000001a}
+  .ct{aspect-ratio:1;background:linear-gradient(135deg,var(--n100),var(--n200));border-radius:10px;position:relative;margin-bottom:12px}
+  [data-theme="dark"] .ct{background:linear-gradient(135deg,var(--n800),var(--n700))}
+  .ct .b{position:absolute;top:8px;left:8px}
+  .cn{font-size:13px;font-weight:600;line-height:1.35;margin-bottom:4px}
+  .cs{font-size:11px;color:var(--muted);font-family:ui-monospace,Menlo,monospace}
+  .cp{display:flex;align-items:baseline;gap:8px;margin:10px 0 12px}
+  .cp .p{font-size:17px;font-weight:800}.cp .o{font-size:12px;color:var(--muted);text-decoration:line-through}
+  .cbtn{width:100%;height:40px;border-radius:9px;border:none;background:var(--accent);color:var(--accent-ink);font-weight:700;font-size:13px;cursor:pointer}
+
+  .devnote{max-width:1240px;margin:0 auto;padding:0 24px 50px;color:var(--muted);font-size:12px;line-height:1.6}
+  .devnote code{background:var(--surface2);padding:2px 6px;border-radius:4px;font-size:11px}
+</style>
+</head>
+<body data-theme="light">
+  <header class="hdr"><div class="hdr-inner container">
+    <span class="logo">TESLA LVIV</span>
+    <nav class="nav"><a>Магазин</a><a>Про нас</a><a>Контакти</a></nav>
+    <div class="search">🔍 Пошук за назвою або артикулом…</div>
+    <div class="right">
+      <button class="toggle" onclick="t()">◐ Тема</button>
+      <div class="icon">♡</div>
+      <div class="icon">🛒<span class="cartdot">3</span></div>
+    </div>
+  </div></header>
+
+  <div class="container">
+    <nav class="crumbs">
+      <a>Головна</a><span>/</span><a>Model 3 Highland</a><span>/</span><a>Кузов</a><span>/</span>Амортизатор капота
+    </nav>
+
+    <div class="product">
+      <!-- Галерея (FR-3.1) -->
+      <div class="gallery">
+        <div class="stage">
+          <div class="gbadges">
+            <span class="badge acc">Новий</span><span class="badge">Оригінал</span>
+          </div>
+          головне фото товару
+          <span class="zoom">🔍 Наведіть для зуму</span>
+        </div>
+        <div class="thumbs">
+          <div class="thumb on">1</div><div class="thumb">2</div><div class="thumb">3</div>
+          <div class="thumb">4</div><div class="thumb">5</div><div class="thumb">+5</div>
+        </div>
+      </div>
+
+      <!-- Інфо + купівля -->
+      <div class="info">
+        <div class="brow">
+          <span class="badge acc">Новий</span>
+          <span class="badge">Оригінал</span>
+          <a class="save"><span class="i">♡</span> Зберегти</a>
+        </div>
+        <h1>Амортизатор капота (лівий/правий) Tesla Model 3 Highland 2024-</h1>
+        <div class="meta">
+          <span class="skuLabel">Артикул:</span>
+          <span class="sku">1645989-00-A</span>
+          <button class="copy" onclick="copySku(this)" title="Скопіювати артикул">⧉</button>
+          <span class="dot">·</span> Модель: <b>Model 3 Highland</b>
+        </div>
+        <div class="stock">В наявності — відправка сьогодні</div>
+
+        <div class="pricebox">
+          <div class="prow">
+            <span class="price">1 150 ₴</span>
+            <span class="old">1 495 ₴</span>
+            <span class="save">−23%</span>
+          </div>
+          <div class="buy">
+            <div class="qty"><button>−</button><input value="1"><button>+</button></div>
+            <button class="btn primary">Додати в кошик</button>
+          </div>
+          <button class="btn ghost">⚡ Купити в 1 клік</button>
+          <div class="miniLinks">
+            <a><span class="i">⚖</span> Знайшли дешевше? <span class="ph2">Фаза 2</span></a>
+            <a><span class="i">🔔</span> Стежити за ціною <span class="ph2">Фаза 2</span></a>
+          </div>
+        </div>
+
+        <div class="trust">
+          <div>🚚 Нова Пошта / Укрпошта</div>
+          <div>💳 Visa · Mastercard · накладений</div>
+          <div>🛡 Гарантія</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Характеристики (FR-3.7) -->
+  <section class="section"><div class="container">
+    <h2>Характеристики</h2>
+    <table class="specs">
+      <tr><td>Стан</td><td>Новий</td></tr>
+      <tr><td>Модель авто</td><td>Tesla Model 3 Highland (2024-)</td></tr>
+      <tr><td>Код запчастини (артикул)</td><td class="mono">1645989-00-A</td></tr>
+      <tr><td>Тип запчастини</td><td>Оригінал</td></tr>
+      <tr><td>Система авто</td><td>Кузов</td></tr>
+      <tr><td>Сторона</td><td>Лівий / правий</td></tr>
+    </table>
+  </div></section>
+
+  <!-- Опис + акордеон (FR-3.8) -->
+  <section class="section"><div class="container">
+    <h2>Опис, гарантія, доставка</h2>
+    <div class="acc">
+      <details open><summary>Опис товару</summary><div class="body">
+        Оригінальний амортизатор капота для Tesla Model 3 Highland (2024-). Підходить на ліву та праву сторону. Забезпечує плавне відкриття та фіксацію капота. Артикул 1645989-00-A.
+      </div></details>
+      <details><summary>Гарантія</summary><div class="body">
+        Гарантія на оригінальні запчастини. Умови повернення впродовж 14 днів за збереження товарного вигляду.
+      </div></details>
+      <details><summary>Доставка та оплата</summary><div class="body">
+        Доставка Новою Поштою або Укрпоштою по всій Україні. Оплата: Visa/Mastercard онлайн або накладений платіж. Відправка в день замовлення при наявності.
+      </div></details>
+    </div>
+  </div></section>
+
+  <!-- Схожі (FR-3.11) -->
+  <section class="section"><div class="container">
+    <h2>Схожі товари</h2>
+    <div class="pgrid" id="rel"></div>
+  </div></section>
+
+  <p class="devnote">
+    Референс картки товару за FRD §3.4. Реалізує: галерея з мініатюрами та зумом (FR-3.1), бейджі (FR-3.2),
+    назва/артикул/категорія (FR-3.3), ціна стара/нова/знижка (FR-3.4), кількість + кошик (FR-3.5),
+    «Купити в 1 клік» (FR-3.6), таблиця характеристик (FR-3.7), акордеон (FR-3.8), схожі (FR-3.11).
+    «Знайшли дешевше» / «Стежити за ціною» — Фаза 2 (FR-3.9/3.10). SEO: на сторінці — <code>Product</code> + <code>Offer</code> + <code>BreadcrumbList</code> JSON-LD (FR-3.12).
+    Шрифти: контент — Onest; артикули — моноширинний. Перемкни тему ◐.
+  </p>
+
+<script>
+  const rel=[
+    {n:'Амортизатор капота Tesla Model Y (2021-)',s:'1494332-00-A',p:'1 090',o:'1 290'},
+    {n:'Газовий упор багажника Tesla Model 3',s:'1099879-00-B',p:'860',o:''},
+    {n:'Кронштейн капота передній Model 3',s:'1084212-00-E',p:'540',o:'650'},
+    {n:'Завіса капота ліва Tesla Model 3',s:'1077947-00-A',p:'1 320',o:''},
+  ];
+  document.getElementById('rel').innerHTML=rel.map(r=>`
+    <div class="card">
+      <div class="ct"><span class="b badge acc">Новий</span></div>
+      <div class="cn">${r.n}</div><div class="cs">${r.s}</div>
+      <div class="cp"><span class="p">${r.p} ₴</span>${r.o?`<span class="o">${r.o} ₴</span>`:''}</div>
+      <button class="cbtn">У кошик</button>
+    </div>`).join('');
+  function t(){const b=document.body;b.dataset.theme=b.dataset.theme==='light'?'dark':'light'}
+  function copySku(el){
+    const code=el.previousElementSibling.textContent.trim();
+    navigator.clipboard&&navigator.clipboard.writeText(code);
+    const old=el.textContent; el.classList.add('copied'); el.textContent='✓';
+    setTimeout(()=>{el.classList.remove('copied');el.textContent=old},1200);
+  }
+</script>
+</body>
+</html>
