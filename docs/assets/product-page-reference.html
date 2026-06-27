@@ -32,7 +32,9 @@
   /* Header */
   .hdr{position:sticky;top:0;z-index:20;background:var(--surface);border-bottom:1px solid var(--border)}
   .hdr-inner{display:flex;align-items:center;gap:20px;padding-top:14px;padding-bottom:14px}
-  .logo{font-weight:800;letter-spacing:.04em;font-size:18px;color:var(--text)}
+  .logo{font-weight:800;letter-spacing:.04em;font-size:18px;color:var(--text);display:inline-flex;align-items:center}
+  .logo img{height:34px;width:auto;display:block}
+  [data-theme="dark"] .logo img{filter:brightness(0) invert(1)}
   .nav{display:flex;gap:18px;font-size:14px}.nav a{color:var(--text);font-weight:500}
   .search{flex:1;max-width:420px;margin:0 auto;display:flex;align-items:center;gap:8px;background:var(--surface2);
     border:1px solid var(--border);border-radius:10px;padding:9px 14px;color:var(--muted);font-size:13px}
@@ -162,7 +164,7 @@
 </head>
 <body data-theme="light">
   <header class="hdr"><div class="hdr-inner container">
-    <span class="logo">TESLA LVIV</span>
+    <a class="logo" href="#"><img src="logo.png" alt="Tesla Spare Parts Lviv"></a>
     <nav class="nav"><a>Магазин</a><a>Про нас</a><a>Контакти</a></nav>
     <div class="search">🔍 Пошук за назвою або артикулом…</div>
     <div class="right">
