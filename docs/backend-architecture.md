@@ -1,4 +1,4 @@
-# Архітектура бекенду — tesla-api (NestJS)
+# Архітектура бекенду — tesla-backend (NestJS)
 
 **Версія:** 1.0
 **Дата:** 27.06.2026
@@ -6,7 +6,7 @@
 **Стек:** NestJS · Prisma · PostgreSQL · S3
 **Пов'язано:** [FRD](FRD.md) · [db-schema.md](db-schema.md) · [ADR-0003](adr/0003-database-postgresql.md) · [ADR-0004](adr/0004-admin-separate-app-and-roles.md) · [ADR-0005](adr/0005-implementation-order-admin-first.md)
 
-> `tesla-api` — **спільний backend** для двох фронтів (`tesla-web`, `tesla-admin`). API-first: один контракт, доступ за роллю в JWT. Реалізується **першим** після БД (ADR-0005).
+> `tesla-backend` — **спільний backend** для двох фронтів (`tesla-frontend`, `tesla-admin`). API-first: один контракт, доступ за роллю в JWT. Реалізується **першим** після БД (ADR-0005).
 
 ---
 
@@ -25,10 +25,10 @@
 
 ```mermaid
 flowchart TB
-  web["tesla-web (Next.js)"] -->|REST /api/v1| api
+  web["tesla-frontend (Next.js)"] -->|REST /api/v1| api
   admin["tesla-admin (Next.js)"] -->|REST + JWT (admin)| api
 
-  subgraph api["tesla-api · NestJS"]
+  subgraph api["tesla-backend · NestJS"]
     direction TB
     G["Guards: JwtAuth · Roles · Throttler"]
     M["Модулі: catalog · cars · systems · search · cart · orders · auth · users · account · leads · blog · banners · media · integrations · admin · seo"]
@@ -139,7 +139,7 @@ create(@Body() dto: CreateProductDto) { … }
 ## 9. Структура папок (орієнтовно)
 
 ```
-tesla-api/
+tesla-backend/
 ├── prisma/
 │   ├── schema.prisma            # див. db-schema.md
 │   └── migrations/

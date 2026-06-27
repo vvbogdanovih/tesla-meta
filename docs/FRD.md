@@ -12,8 +12,8 @@
 ## 1. Архітектура (огляд)
 
 ```
-[tesla-web · Next.js (SSR/ISR)] ─┐
-                                 ├─REST──> [tesla-api · NestJS] ──> [PostgreSQL]
+[tesla-frontend · Next.js (SSR/ISR)] ─┐
+                                 ├─REST──> [tesla-backend · NestJS] ──> [PostgreSQL]
 [tesla-admin · Next.js (RBAC)] ──┘                 │
                                                    ├──> [S3] (зображення товарів, OG)
                                                    ├──> [Платіжний шлюз] (еквайринг Visa/MC)
@@ -21,7 +21,7 @@
                                                    └──> [Email/SMS сервіс] (нотифікації, заявки)
 ```
 
-- **Два фронти, спільний бекенд** (ADR-0004): публічний сайт `tesla-web` і адмінка `tesla-admin` — окремі Next.js застосунки на одному NestJS API.
+- **Два фронти, спільний бекенд** (ADR-0004): публічний сайт `tesla-frontend` і адмінка `tesla-admin` — окремі Next.js застосунки на одному NestJS API.
 
 - **Next.js** — рендеринг сторінок (SSR для SEO-критичних, ISR для каталогу/товарів), клієнтська інтерактивність, кошик.
 - **NestJS** — REST API: товари, сумісність/довідник авто, системи, кошик, замовлення, користувачі, ліди, контент. ORM: **Prisma**.

@@ -18,3 +18,7 @@ Thumbs.db
 
 # Локальні налаштування інструментів
 .claude/settings.local.json
+
+# Локальні робочі копії застосунків (стануть git submodules, коли з'являться
+# GitHub-репо). До конвертації — не комітимо їх у tesla-meta.
+repos/

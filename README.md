@@ -43,11 +43,25 @@ Tesla Lviv — повний редизайн і перенесення наяв�
 | Репозиторій | Призначення | Стек | Статус |
 |-------------|-------------|------|--------|
 | **tesla-meta** (цей) | Документація, архітектура, координація | Markdown | active |
-| `tesla-web` *(заплановано)* | Клієнтський застосунок | Next.js | — |
-| `tesla-admin` *(заплановано)* | Адмін-панель (окремий застосунок) | Next.js | — |
-| `tesla-api` *(заплановано)* | Спільний backend API | NestJS · PostgreSQL | — |
+| `tesla-frontend` | Клієнтський застосунок | Next.js | scaffold (локально) |
+| `tesla-admin` | Адмін-панель (окремий застосунок) | Next.js | scaffold (локально) |
+| `tesla-backend` | Спільний backend API | NestJS · Prisma · PostgreSQL | scaffold (локально) |
 
-> Назви та посилання на репозиторії коду оновляться, коли вони будуть створені.
+> Застосунки живуть у `repos/` як **локальні git-репозиторії** (кожен на `main` з першим комітом). Коли з'являться GitHub-репо, вони підключаться як **git submodules** (див. нижче). Поки що `repos/` ігнорується в tesla-meta.
+
+### Сабмодулі (план підключення)
+
+Коли створимо GitHub-репо, конвертуємо кожну теку в submodule:
+
+```sh
+# прибрати repos/ з .gitignore, потім для кожного застосунку:
+git -C repos/tesla-frontend remote add origin git@github.com:vvbogdanovih/tesla-frontend.git
+git -C repos/tesla-frontend push -u origin main
+git submodule add git@github.com:vvbogdanovih/tesla-frontend.git repos/tesla-frontend
+# (аналогічно для tesla-admin, tesla-backend) → git commit .gitmodules
+```
+
+Після цього `git clone --recurse-submodules` мета-репо підтягне всі застосунки.
 
 ## Дорожня карта (фази)
 
