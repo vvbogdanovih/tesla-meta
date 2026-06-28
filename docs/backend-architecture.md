@@ -31,7 +31,7 @@ flowchart TB
   subgraph api["tesla-backend · NestJS"]
     direction TB
     G["Guards: JwtAuth · Roles · Throttler"]
-    M["Модулі: catalog · cars · systems · search · cart · orders · auth · users · account · leads · blog · banners · media · integrations · admin · seo"]
+    M["Модулі: catalog · cars · categories · search · cart · orders · auth · users · account · leads · blog · banners · media · integrations · admin · seo"]
     P["PrismaService"]
     G --> M --> P
   end
@@ -54,7 +54,7 @@ flowchart TB
 | **AccountModule** | Профіль, адреси, історія замовлень поточного користувача | user |
 | **CatalogModule** | Товари: список з фільтрами/сортуванням/пагінацією, деталі | public read / admin write |
 | **CarsModule** | Довідник авто (моделі/покоління) | public read / admin write |
-| **SystemsModule** | Глобальне дерево систем | public read / admin write |
+| **CategoriesModule** | Глобальне дерево категорій | public read / admin write |
 | **FitmentModule** | M2M сумісність товар↔авто (керування, запити) | admin write |
 | **SearchModule** | Пошук + автодоповнення (pg_trgm) | public |
 | **CartModule** | Кошик (синхронізація для авторизованих) | user/guest |
@@ -89,7 +89,7 @@ create(@Body() dto: CreateProductDto) { … }
 ## 5. Конвенції API
 
 - База: `/api/v1`. Ресурсні маршрути (REST), узгоджені з [FRD §5](FRD.md).
-- **Фільтрація каталогу:** `GET /products?car=&system=&type=&condition=&inStock=&minPrice=&maxPrice=&sort=&page=&limit=`.
+- **Фільтрація каталогу:** `GET /products?car=&category=&type=&condition=&inStock=&minPrice=&maxPrice=&sort=&page=&limit=`.
 - **Пагінація:** `page`/`limit` + відповідь `{ items, total, page, limit }`.
 - **Помилки:** єдиний формат (`{ statusCode, message, error }`) через глобальний `ExceptionFilter`.
 - **DTO + валідація:** усі вхідні дані; whitelist + forbidNonWhitelisted.
@@ -119,7 +119,7 @@ create(@Body() dto: CreateProductDto) { … }
    - наповнити `Car` (покоління/дати);
    - **дедуплікація товарів за `sku`** → один `Product`;
    - побудувати `ProductFitment` зі старих модельних категорій;
-   - звести системи до глобального довідника `System`;
+   - звести категорії до глобального довідника `Category`;
    - сформувати `Redirect` (старий URL → новий, 301).
 3. **Load:** запис у PostgreSQL через Prisma; валідація; звіт розбіжностей.
 
@@ -157,7 +157,7 @@ tesla-backend/
 │   │   ├── account/
 │   │   ├── catalog/            # products
 │   │   ├── cars/
-│   │   ├── systems/
+│   │   ├── categories/
 │   │   ├── fitment/
 │   │   ├── search/
 │   │   ├── cart/

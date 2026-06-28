@@ -5,7 +5,7 @@
 **Статус:** Draft
 **Пов'язано:** [FRD §6](FRD.md) · [ADR-0002](adr/0002-catalog-compatibility-architecture.md) (каталог/сумісність) · [ADR-0003](adr/0003-database-postgresql.md) (PostgreSQL)
 
-> Реляційна схема під архітектуру ADR-0002: **сумісність відокремлена від таксономії** (довідник авто `Car` + M2M `ProductFitment`), системи — глобальний довідник, товар — один canonical-запис. ORM — **Prisma** (схема нижче в нотації Prisma). JSONB (`Json`) — для гнучких полів.
+> Реляційна схема під архітектуру ADR-0002: **сумісність відокремлена від таксономії** (довідник авто `Car` + M2M `ProductFitment`), категорії — глобальний довідник, товар — один canonical-запис. ORM — **Prisma** (схема нижче в нотації Prisma). JSONB (`Json`) — для гнучких полів.
 
 ---
 
@@ -15,8 +15,8 @@
 erDiagram
   Car             ||--o{ ProductFitment : "сумісність"
   Product         ||--o{ ProductFitment : "сумісність"
-  System          ||--o{ Product        : "система"
-  System          ||--o{ System         : "підсистеми"
+  Category        ||--o{ Product        : "категорія"
+  Category        ||--o{ Category        : "підкатегорії"
   Product         ||--o{ ProductImage   : "фото"
   Product         ||--o{ OrderItem      : ""
   Order           ||--o{ OrderItem      : "позиції"
@@ -33,7 +33,7 @@ erDiagram
     date   productionStart
     date   productionEnd
   }
-  System {
+  Category {
     bigint id PK
     string slug UK
     string name
@@ -49,7 +49,7 @@ erDiagram
     enum   condition
     enum   type
     bool   inStock
-    bigint systemId FK
+    bigint categoryId FK
     json   attributes
   }
   ProductFitment {
@@ -135,17 +135,17 @@ model Car {
   @@map("cars")
 }
 
-model System {
-  id        BigInt    @id @default(autoincrement())
-  slug      String    @unique                              // kuzov
-  name      String                                         // Кузов
-  parentId  BigInt?   @map("parent_id")
-  parent    System?   @relation("SystemTree", fields: [parentId], references: [id])
-  children  System[]  @relation("SystemTree")
-  sortOrder Int       @default(0) @map("sort_order")
-  seo       Json      @default("{}")
+model Category {
+  id        BigInt     @id @default(autoincrement())
+  slug      String     @unique                              // kuzov
+  name      String                                          // Кузов
+  parentId  BigInt?    @map("parent_id")
+  parent    Category?  @relation("CategoryTree", fields: [parentId], references: [id])
+  children  Category[] @relation("CategoryTree")
+  sortOrder Int        @default(0) @map("sort_order")
+  seo       Json       @default("{}")
   products  Product[]
-  @@map("systems")
+  @@map("categories")
 }
 
 model Product {
@@ -159,8 +159,8 @@ model Product {
   type          ProductType                                // original | analog
   inStock       Boolean          @default(true) @map("in_stock")
   stockQty      Int              @default(0)   @map("stock_qty")
-  systemId      BigInt           @map("system_id")
-  system        System           @relation(fields: [systemId], references: [id])
+  categoryId    BigInt           @map("category_id")
+  category      Category         @relation(fields: [categoryId], references: [id])
   attributes    Json             @default("{}")            // гнучкі характеристики
   description   String?
   warranty      String?
@@ -177,7 +177,7 @@ model Product {
   orderItems OrderItem[]
   leads      Lead[]
 
-  @@index([systemId])
+  @@index([categoryId])
   @@index([isActive, inStock])
   @@index([price])
   @@map("products")
@@ -337,7 +337,7 @@ model Redirect {
 
 ## 3. Індекси та пошук
 
-- Базові індекси задано в схемі через `@@index` / `@unique` (system, price, isActive+inStock, fitment.carId, orders.status/userId, leads.status+type).
+- Базові індекси задано в схемі через `@@index` / `@unique` (category, price, isActive+inStock, fitment.carId, orders.status/userId, leads.status+type).
 - **Пошук за назвою та артикулом** (FR-4.1) — трграмні GIN-індекси `pg_trgm`. Prisma не виражає `gin_trgm_ops` у схемі, тому додаємо **raw-міграцією**:
 
 ```sql
@@ -354,9 +354,9 @@ CREATE INDEX idx_products_attrs ON products USING gin (attributes);
 ## 4. Типові запити (Prisma Client)
 
 ```ts
-// Товари для авто X у системі Y (каталог /category/[model]/[system])
+// Товари для авто X у категорії Y (каталог /category/[model]/[category])
 const products = await prisma.product.findMany({
-  where: { isActive: true, systemId, fitment: { some: { carId } } },
+  where: { isActive: true, categoryId, fitment: { some: { carId } } },
   orderBy: { createdAt: 'desc' },
   take: 24,
 })

@@ -126,7 +126,7 @@
       <button onclick="go('orders',this)"><span class="ic">🧾</span> Замовлення</button>
       <button onclick="go('leads',this)"><span class="ic">📨</span> Ліди</button>
       <button onclick="go('cars',this)"><span class="ic">🚗</span> Довідник авто</button>
-      <button onclick="go('systems',this)"><span class="ic">🗂</span> Системи</button>
+      <button onclick="go('categories',this)"><span class="ic">🗂</span> Категорії</button>
       <button onclick="go('blog',this)"><span class="ic">📝</span> Блог</button>
       <button onclick="go('banners',this)"><span class="ic">🖼</span> Банери</button>
       <button onclick="go('users',this)"><span class="ic">👥</span> Користувачі</button>
@@ -170,13 +170,13 @@
         <div class="ph"><h2>Товари</h2><button class="btn primary" onclick="go('product-edit')">+ Додати товар</button></div>
         <div class="toolbar">
           <div class="search">🔍 Назва або артикул…</div>
-          <button class="btn ghost">Система ▾</button>
+          <button class="btn ghost">Категорія ▾</button>
           <button class="btn ghost">Авто ▾</button>
           <button class="btn ghost">Тип ▾</button>
           <button class="btn ghost">Імпорт / Експорт</button>
         </div>
         <div class="card"><table>
-          <thead><tr><th></th><th>Назва</th><th>Артикул</th><th>Система</th><th>Сумісність</th><th>Ціна</th><th>Тип</th><th>Наявність</th><th></th></tr></thead>
+          <thead><tr><th></th><th>Назва</th><th>Артикул</th><th>Категорія</th><th>Сумісність</th><th>Ціна</th><th>Тип</th><th>Наявність</th><th></th></tr></thead>
           <tbody id="prod-rows"></tbody>
         </table></div>
       </div>
@@ -191,7 +191,7 @@
               <div class="field"><label>Назва</label><input value="Амортизатор капота (лівий/правий) Tesla Model 3 Highland 2024-"></div>
               <div class="frow">
                 <div class="field"><label>Артикул (SKU)</label><input class="mono" value="1645989-00-A"></div>
-                <div class="field"><label>Система</label><select><option>Кузов</option><option>Підвіска</option><option>Електрика</option></select></div>
+                <div class="field"><label>Категорія</label><select><option>Кузов</option><option>Підвіска</option><option>Електрика</option></select></div>
               </div>
               <div class="frow">
                 <div class="field"><label>Тип</label><select><option>Оригінал</option><option>Аналог</option></select></div>
@@ -225,10 +225,7 @@
                 <div class="field"><label>Ціна, ₴</label><input value="1150"></div>
                 <div class="field"><label>Стара ціна</label><input value="1495"></div>
               </div>
-              <div class="frow">
-                <div class="field"><label>Наявність</label><select><option>В наявності</option><option>Під замовлення</option></select></div>
-                <div class="field"><label>Залишок</label><input value="14"></div>
-              </div>
+              <div class="field"><label>Залишок</label><input value="14"><span style="font-size:12px;color:var(--muted);margin-top:4px">Наявність визначається автоматично: залишок &gt; 0 — «в наявності».</span></div>
             </div>
             <div class="fcard">
               <h3>Зображення (S3)</h3>
@@ -274,7 +271,7 @@
       </div>
 
       <!-- Прості заглушки -->
-      <div class="panel" id="p-systems"><div class="ph"><h2>Системи</h2><button class="btn primary">+ Додати систему</button></div><div class="card"><div class="ct">Глобальне дерево систем (Кузов, Підвіска, Електрика, Гальмівна…)</div><table><tbody id="sys-rows"></tbody></table></div></div>
+      <div class="panel" id="p-categories"><div class="ph"><h2>Категорії</h2><button class="btn primary">+ Додати категорію</button></div><div class="card"><div class="ct">Глобальне дерево категорій (Кузов, Підвіска, Електрика, Гальмівна система…)</div><table><tbody id="sys-rows"></tbody></table></div></div>
       <div class="panel" id="p-blog"><div class="ph"><h2>Блог</h2><button class="btn primary">+ Нова стаття</button></div><div class="card"><div class="ct">Список статей, CRUD, статус (draft/published)</div></div></div>
       <div class="panel" id="p-banners"><div class="ph"><h2>Банери головної</h2><button class="btn primary">+ Банер</button></div><div class="card"><div class="ct">Слайдер головної: зображення, посилання, порядок, активність</div></div></div>
       <div class="panel" id="p-users"><div class="ph"><h2>Користувачі та ролі</h2><button class="btn primary">+ Додати</button></div><div class="card"><table><thead><tr><th>Ім'я</th><th>Email</th><th>Роль</th><th></th></tr></thead><tbody id="user-rows"></tbody></table></div></div>
@@ -284,7 +281,7 @@
 </div>
 
 <script>
-  const titles={dash:'Дашборд',products:'Товари','product-edit':'Редагування товару',orders:'Замовлення',leads:'Ліди',cars:'Довідник авто',systems:'Системи',blog:'Блог',banners:'Банери',users:'Користувачі'};
+  const titles={dash:'Дашборд',products:'Товари','product-edit':'Редагування товару',orders:'Замовлення',leads:'Ліди',cars:'Довідник авто',categories:'Категорії',blog:'Блог',banners:'Банери',users:'Користувачі'};
   function go(p,el){
     document.querySelectorAll('.panel').forEach(x=>x.classList.remove('on'));
     document.getElementById('p-'+p).classList.add('on');
