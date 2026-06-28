@@ -18,3 +18,4 @@
 | [0003](0003-database-postgresql.md) | PostgreSQL замість MongoDB | Accepted | 27.06.2026 |
 | [0004](0004-admin-separate-app-and-roles.md) | Адмінка — окремий Next.js застосунок; ролі User/Admin/SuperAdmin | Accepted | 27.06.2026 |
 | [0005](0005-implementation-order-admin-first.md) | Порядок реалізації: БД/API → адмінка → клієнтський застосунок | Accepted | 27.06.2026 |
+| [0006](0006-rich-text-tiptap-json-html.md) | Rich text — TipTap; зберігання JSON (редагування) + HTML (показ) | Accepted | 28.06.2026 |

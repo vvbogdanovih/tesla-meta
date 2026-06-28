@@ -161,10 +161,11 @@ model Product {
   stockQty      Int              @default(0)   @map("stock_qty")
   categoryId    BigInt           @map("category_id")
   category      Category         @relation(fields: [categoryId], references: [id])
-  attributes    Json             @default("{}")            // гнучкі характеристики
-  description   String?
-  warranty      String?
-  deliveryTerms String?          @map("delivery_terms")
+  attributes      Json           @default("{}")            // гнучкі характеристики
+  descriptionJson Json?          @map("description_json")  // TipTap JSON — джерело правди (редагування)
+  descriptionHtml String?        @map("description_html")  // згенерований санітизований HTML (сторфронт)
+  warranty        String?
+  deliveryTerms   String?        @map("delivery_terms")
   seo           Json             @default("{}")            // { title, description, ogImage }
   isActive      Boolean          @default(true) @map("is_active")
   createdAt     DateTime         @default(now()) @map("created_at")
@@ -303,7 +304,8 @@ model BlogPost {
   slug        String    @unique
   title       String
   excerpt     String?
-  content     String?                                       // HTML / MDX
+  contentJson Json?     @map("content_json")                // TipTap JSON — джерело правди
+  contentHtml String?   @map("content_html")                // згенерований санітизований HTML
   coverImage  String?   @map("cover_image")
   author      String?
   category    String?
