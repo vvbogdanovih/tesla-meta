@@ -46,9 +46,10 @@ erDiagram
     string name
     decimal price
     decimal oldPrice
+    bool   onSale
     enum   condition
     enum   type
-    bool   inStock
+    int    stockQty
     bigint categoryId FK
     json   attributes
   }
@@ -155,17 +156,15 @@ model Product {
   name          String
   price         Decimal          @db.Decimal(12, 2)
   oldPrice      Decimal?         @map("old_price") @db.Decimal(12, 2)
+  onSale        Boolean          @default(false) @map("on_sale")   // знижка активна (показувати стару ціну)
   condition     ProductCondition @default(new)             // new | used | clearance
   type          ProductType                                // original | analog
-  inStock       Boolean          @default(true) @map("in_stock")
-  stockQty      Int              @default(0)   @map("stock_qty")
+  stockQty      Int              @default(0)   @map("stock_qty")   // наявність = stockQty > 0
   categoryId    BigInt           @map("category_id")
   category      Category         @relation(fields: [categoryId], references: [id])
   attributes      Json           @default("{}")            // гнучкі характеристики
   descriptionJson Json?          @map("description_json")  // TipTap JSON — джерело правди (редагування)
   descriptionHtml String?        @map("description_html")  // згенерований санітизований HTML (сторфронт)
-  warranty        String?
-  deliveryTerms   String?        @map("delivery_terms")
   seo           Json             @default("{}")            // { title, description, ogImage }
   isActive      Boolean          @default(true) @map("is_active")
   createdAt     DateTime         @default(now()) @map("created_at")
@@ -179,7 +178,7 @@ model Product {
   leads      Lead[]
 
   @@index([categoryId])
-  @@index([isActive, inStock])
+  @@index([isActive, stockQty])
   @@index([price])
   @@map("products")
 }
@@ -214,6 +213,17 @@ model ProductRelated {
   related   Product @relation("RelatedProduct", fields: [relatedId], references: [id], onDelete: Cascade)
   @@id([productId, relatedId])
   @@map("product_related")
+}
+
+// Наскрізні тексти (гарантія, доставка+оплата) — rich text, фіксований набір ключів.
+model ContentBlock {
+  id        BigInt   @id @default(autoincrement())
+  key       String   @unique                       // warranty | delivery_payment
+  title     String
+  bodyJson  Json?    @map("body_json")             // TipTap JSON — джерело правди
+  bodyHtml  String?  @map("body_html")             // згенерований санітизований HTML
+  updatedAt DateTime @updatedAt @map("updated_at")
+  @@map("content_blocks")
 }
 
 // ───────── Користувачі та замовлення ─────────
@@ -339,7 +349,7 @@ model Redirect {
 
 ## 3. Індекси та пошук
 
-- Базові індекси задано в схемі через `@@index` / `@unique` (category, price, isActive+inStock, fitment.carId, orders.status/userId, leads.status+type).
+- Базові індекси задано в схемі через `@@index` / `@unique` (category, price, isActive+stockQty, fitment.carId, orders.status/userId, leads.status+type).
 - **Пошук за назвою та артикулом** (FR-4.1) — трграмні GIN-індекси `pg_trgm`. Prisma не виражає `gin_trgm_ops` у схемі, тому додаємо **raw-міграцією**:
 
 ```sql
