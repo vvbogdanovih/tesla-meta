@@ -19,3 +19,7 @@
 | [0004](0004-admin-separate-app-and-roles.md) | Адмінка — окремий Next.js застосунок; ролі User/Admin/SuperAdmin | Accepted | 27.06.2026 |
 | [0005](0005-implementation-order-admin-first.md) | Порядок реалізації: БД/API → адмінка → клієнтський застосунок | Accepted | 27.06.2026 |
 | [0006](0006-rich-text-tiptap-json-html.md) | Rich text — TipTap; зберігання JSON (редагування) + HTML (показ) | Accepted | 28.06.2026 |
+| [0007](0007-image-pipeline-avif.md) | Завантаження зображень — конвертація в AVIF на бекенді (sharp) | Accepted | 29.06.2026 |
+| [0008](0008-payment-requisites-channels.md) | Реквізити продавця та канали оплати (IBAN / LiqPay), шифрування секретів | Accepted | 29.06.2026 |
+| [0009](0009-content-blocks.md) | Наскрізні тексти сайту — сутність ContentBlock | Accepted | 29.06.2026 |
+| [0010](0010-single-user-entity.md) | Єдина сутність User + роль (без розділення профілів) | Accepted | 29.06.2026 |

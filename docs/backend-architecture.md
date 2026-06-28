@@ -62,8 +62,10 @@ flowchart TB
 | **LeadsModule** | Заявки (підбір/дешевше/підписка/контакт) + нотифікації | public create / admin read |
 | **BlogModule** | Статті | public read / content write |
 | **BannersModule** | Банери головної | admin write |
-| **MediaModule** | Завантаження в S3, обробка/ресайз, OG-генерація | admin |
-| **IntegrationsModule** | Нова Пошта, еквайринг, email/SMS — проксі/адаптери | internal |
+| **ContentBlocksModule** | Наскрізні тексти сайту (гарантія, доставка) — фікс. набір, rich text ([ADR-0009](adr/0009-content-blocks.md)) | public read / admin write |
+| **PaymentRequisitesModule** | Реквізити продавця + канали IBAN/LiqPay, шифрування ключа ([ADR-0008](adr/0008-payment-requisites-channels.md)) | **superadmin** |
+| **S3Module / Media** | Завантаження → конвертація в **AVIF** (sharp), R2; presign ([ADR-0007](adr/0007-image-pipeline-avif.md)) | admin |
+| **IntegrationsModule** | Нова Пошта, еквайринг (LiqPay), email/SMS — проксі/адаптери | internal |
 | **SeoModule** | `sitemap.xml`, `robots.txt`, редиректи | public |
 | **AdminModule** | Агрегація адмін-операцій, дашборд-метрики, імпорт/експорт | admin/superadmin |
 
@@ -102,7 +104,7 @@ create(@Body() dto: CreateProductDto) { … }
 | Інтеграція | Призначення | Нотатки |
 |------------|-------------|---------|
 | **Нова Пошта API** | Міста, відділення/поштомати, ТТН/статуси | Проксі через бекенд (ключ не на клієнті); кеш міст/відділень |
-| **Платіжний еквайринг** | Онлайн-оплата карткою | Конкретний провайдер — відкрите питання (LiqPay/Fondy/WayForPay/monobank); вебхуки статусів оплати |
+| **LiqPay (еквайринг)** | Онлайн-оплата карткою | Провайдер — **LiqPay** ([ADR-0008](adr/0008-payment-requisites-channels.md)); ключі — у `PaymentRequisite` (зашифровано); вебхуки статусів. Адаптер дозволяє заміну |
 | **Email / SMS / Telegram** | Підтвердження замовлень, нотифікації лідів менеджеру | Черга/ретраї; шаблони |
 | **S3 / CDN** | Зберігання зображень, OG | Підписані URL для завантаження з адмінки |
 
@@ -127,7 +129,9 @@ create(@Body() dto: CreateProductDto) { … }
 
 ## 8. Наскрізні аспекти
 
-- **Конфіг:** `@nestjs/config`, `.env` за середовищами (dev/stage/prod); секрети поза репо.
+- **Конфіг:** `@nestjs/config` + zod-валідація `.env` (`env.constant.ts`) за середовищами; секрети поза репо. Окремий `PAYMENT_ENC_KEY` — для шифрування платіжних секретів.
+- **Шифрування секретів:** `common/utils/crypto.util.ts` (AES-256-GCM) — для приватного ключа LiqPay у `PaymentRequisite` ([ADR-0008](adr/0008-payment-requisites-channels.md)).
+- **Slug:** спільний `common/utils/slugify.ts` — транслітерація **укр/рос → латиниця** (товари/категорії/авто); slug стабільний, не змінюється при перейменуванні (SEO).
 - **Кеш:** кеш гарячих читань (каталог/категорії) + ISR на фронті; інвалідація при змінах у адмінці.
 - **Rate limiting:** `@nestjs/throttler` на публічних і auth-ендпоінтах (NFR-6, anti-spam форм).
 - **Логування/моніторинг:** структуровані логи, request-id; помилки — у трекер.
