@@ -16,7 +16,6 @@ erDiagram
   Car             ||--o{ ProductFitment : "сумісність"
   Product         ||--o{ ProductFitment : "сумісність"
   Category        ||--o{ Product        : "категорія"
-  Category        ||--o{ Category        : "підкатегорії"
   Product         ||--o{ ProductImage   : "фото"
   Product         ||--o{ OrderItem      : ""
   Order           ||--o{ OrderItem      : "позиції"
@@ -30,6 +29,7 @@ erDiagram
     string model
     string generation
     string slug UK
+    string imageUrl
     date   productionStart
     date   productionEnd
   }
@@ -37,7 +37,7 @@ erDiagram
     bigint id PK
     string slug UK
     string name
-    bigint parentId FK
+    int    sortOrder
   }
   Product {
     bigint id PK
@@ -129,24 +129,24 @@ model Car {
   model           String                                  // Model 3 / Model Y / Model S / Model X
   generation      String?                                 // Pre-facelift / Highland / Phase 1 / Juniper
   slug            String    @unique                       // model-3-highland
-  productionStart DateTime? @map("production_start") @db.Date
-  productionEnd   DateTime? @map("production_end")   @db.Date  // null = у виробництві
+  imageUrl        String?   @map("image_url")
+  productionStart DateTime  @map("production_start") @db.Date    // обовʼязкова (дата випуску)
+  productionEnd   DateTime? @map("production_end")   @db.Date    // null = у виробництві
   fitment         ProductFitment[]
   @@map("cars")
 }
 
 model Category {
-  id        BigInt     @id @default(autoincrement())
-  slug      String     @unique                              // kuzov
+  id        BigInt    @id @default(autoincrement())
+  slug      String    @unique                               // kuzov
   name      String                                          // Кузов
-  parentId  BigInt?    @map("parent_id")
-  parent    Category?  @relation("CategoryTree", fields: [parentId], references: [id])
-  children  Category[] @relation("CategoryTree")
-  sortOrder Int        @default(0) @map("sort_order")
-  seo       Json       @default("{}")
+  sortOrder Int       @default(0) @map("sort_order")
+  seo       Json      @default("{}")
   products  Product[]
   @@map("categories")
 }
+// Категорія — плоский глобальний список (ADR-0002). Авто — окремий вимір
+// (фільтр сумісності через ProductFitment), а не рівень категорії.
 
 model Product {
   id            BigInt           @id @default(autoincrement())
