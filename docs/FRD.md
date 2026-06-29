@@ -176,9 +176,9 @@
 
 | Метод | Ендпоінт | Опис |
 |-------|----------|------|
-| GET | `/api/products?car=&category=&type=&condition=&inStock=&minPrice=&maxPrice=&sort=&page=&limit=` | Список з фасетними фільтрами (вкл. **сумісність за авто**), сортуванням, пагінацією *(публічний — план)* |
-| GET | `/api/products/:slug` | Деталі товару (зі списком сумісності) *(публічний — план)* |
-| GET | `/api/products/search?q=` | Пошук + автодоповнення (назва + артикул) *(план)* |
+| GET | `/api/catalog/products?car=&category=&type=&condition=&inStock=&minPrice=&maxPrice=&sort=&page=&limit=` | **Публічний** список (лише активні) з фасетними фільтрами (вкл. **сумісність за авто**), сортуванням, пагінацією ✅ |
+| GET | `/api/catalog/products/:slug` | **Публічна** картка товару (зі списком сумісних авто) ✅ |
+| GET | `/api/catalog/search?q=` | **Публічний** пошук (pg_trgm: назва + артикул) ✅ |
 | `*` | `/api/products` (GET/`:id`/POST/PATCH/DELETE) | **Admin CRUD товарів** (галерея AVIF, сумісність, attributes, rich-text опис) ✅ |
 | GET | `/api/cars` | Довідник авто (моделі/покоління) — фільтр сумісності ✅ |
 | `*` | `/api/cars` (POST/PATCH/DELETE) | **Admin** CRUD авто (фото, дата випуску) ✅ |
