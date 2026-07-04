@@ -117,10 +117,11 @@
 > - [`assets/catalog-page-reference.html`](assets/catalog-page-reference.html) — каталог: фасетні фільтри (sticky), сітка карток, сортування, активні фільтри-чіпи, пагінація 24/48/96, drawer на мобільному.
 > - [`assets/cart-checkout-reference.html`](assets/cart-checkout-reference.html) — кошик і оформлення: позиції/підсумок/знижки, порожній стан; checkout — контакти, доставка (НП/Укрпошта/**самовивіз**), оплата (картка/накладений/**IBAN**/**готівка при самовивозі**), **гість vs авторизований** (збережені адреси).
 > - [`assets/account-reference.html`](assets/account-reference.html) — особистий кабінет: вхід/реєстрація, профіль, адреси доставки, історія замовлень зі статусами, повторне замовлення.
+> - [`assets/wishlist-reference.html`](assets/wishlist-reference.html) — **обране (список бажань):** грід карток із активним ♡, лічильник, «У кошик»/видалити, порожній стан; лише авторизований, гість → логін ([ADR-0012](adr/0012-wishlist-auth-crm.md)).
 > - [`assets/search-page-reference.html`](assets/search-page-reference.html) — пошук: автодоповнення (товари/категорії з підсвіткою), результати + сортування, стан «нічого не знайдено» з підбором.
 > - [`assets/error-404-reference.html`](assets/error-404-reference.html) — сторінка 404: пошук, CTA на головну/каталог, популярні категорії, заявка на підбір.
 > - [`assets/content-page-reference.html`](assets/content-page-reference.html) — шаблон інфо-сторінок (про нас, доставка, повернення, оферта…): бічна навігація + типографіка контенту, таблиці, callout, CTA.
-> - [`assets/admin-reference.html`](assets/admin-reference.html) — **адмінка** (`tesla-admin`): дашборд, товари (таблиця + форма з вибором сумісності M2M), замовлення, ліди, довідник авто, системи, банери, користувачі/ролі.
+> - [`assets/admin-reference.html`](assets/admin-reference.html) — **адмінка** (`tesla-admin`): дашборд, товари (таблиця + форма з вибором сумісності M2M), замовлення, ліди (акордеон за типом + «Обране/лайки»), довідник авто, системи, банери, користувачі/ролі.
 
 ---
 

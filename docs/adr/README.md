@@ -23,3 +23,6 @@
 | [0008](0008-payment-requisites-channels.md) | Реквізити продавця та канали оплати (IBAN / LiqPay), шифрування секретів | Accepted | 29.06.2026 |
 | [0009](0009-content-blocks.md) | Наскрізні тексти сайту — сутність ContentBlock | Accepted | 29.06.2026 |
 | [0010](0010-single-user-entity.md) | Єдина сутність User + роль (без розділення профілів) | Accepted | 29.06.2026 |
+| [0011](0011-price-sheet-table-view.md) | Price-sheet — табличний вигляд каталогу | Accepted | 01.07.2026 |
+| [0012](0012-wishlist-auth-crm.md) | Обране (wishlist) — авторизований сигнал інтересу для CRM | Accepted | 01.07.2026 |
+| [0013](0013-order-status-method-columns.md) | Order: статус/методи оплати й доставки та пошук контактів — окремі колонки | Accepted | 02.07.2026 |

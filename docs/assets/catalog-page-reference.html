@@ -114,25 +114,40 @@
 
   /* Grid */
   .pgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:16px}
-  .card{background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:14px;display:flex;flex-direction:column;transition:transform .15s,box-shadow .15s}
-  .card:hover{transform:translateY(-3px);box-shadow:0 12px 28px #0000001a}
-  .ct{aspect-ratio:1;background:linear-gradient(135deg,var(--n100),var(--n200));border-radius:10px;position:relative;margin-bottom:12px;
+
+  /* Картка товару — відповідає ProductCard.tsx (tesla-frontend) */
+  .card{position:relative;display:flex;flex-direction:column;overflow:hidden;background:var(--surface);
+    border:1px solid var(--border);border-radius:16px;transition:box-shadow .2s}
+  .card:hover{box-shadow:0 10px 15px -3px #0000001a,0 4px 6px -4px #0000001a}
+  .card .overlay{position:absolute;inset:0;z-index:10}          /* розтягнуте посилання на товар */
+  .card .imgwrap{padding:16px 16px 0}
+  .ct{position:relative;aspect-ratio:1;overflow:hidden;border-radius:12px;background:var(--surface2);
     display:flex;align-items:center;justify-content:center;color:var(--n400);font-size:11px}
-  [data-theme="dark"] .ct{background:linear-gradient(135deg,var(--n800),var(--n700))}
-  .ct .bs{position:absolute;top:8px;left:8px;display:flex;gap:5px}
-  .ct .fav{position:absolute;top:8px;right:8px;width:30px;height:30px;border-radius:8px;background:var(--surface);
-    border:1px solid var(--border);display:flex;align-items:center;justify-content:center;cursor:pointer;color:var(--muted)}
-  .badge{font-size:10px;font-weight:800;padding:3px 7px;border-radius:5px;background:var(--n900);color:#fff;letter-spacing:.02em}
-  [data-theme="dark"] .badge{background:var(--n0);color:var(--n900)}
-  .badge.acc{background:var(--accent);color:var(--accent-ink)}
-  .cn{font-size:13px;font-weight:600;line-height:1.35;margin-bottom:4px}
-  .cs{font-size:11px;color:var(--muted);font-family:ui-monospace,Menlo,monospace}
-  .cstock{font-size:11px;color:var(--ok);font-weight:600;margin-top:8px}
-  .cp{display:flex;align-items:baseline;gap:8px;margin:8px 0 12px}
-  .cp .p{font-size:18px;font-weight:800}.cp .o{font-size:12px;color:var(--muted);text-decoration:line-through}
-  .cp .sv{font-size:10px;font-weight:800;color:#fff;background:var(--sale);border-radius:5px;padding:2px 5px}
-  .cbtn{margin-top:auto;width:100%;height:42px;border-radius:10px;border:none;background:var(--accent);color:var(--accent-ink);font-weight:700;font-size:13px;cursor:pointer;font-family:inherit;transition:background .15s}
-  .cbtn:hover{background:var(--accent-hover)}
+  [data-theme="dark"] .ct{background:var(--n800)}
+  .card:hover .ct .ph{transform:scale(1.05)}
+  .ct .ph{transition:transform .3s;color:var(--n400);font-size:11px}
+  .disc{position:absolute;left:8px;top:8px;background:var(--accent);color:var(--accent-ink);
+    border-radius:6px;padding:2px 6px;font-size:11px;font-weight:800;letter-spacing:.01em}
+  .livechip{display:inline-flex;align-items:center;gap:4px;border:1px solid #fcd34d;color:var(--accent-text);
+    border-radius:999px;padding:2px 8px;font-size:11px;font-weight:600}
+  [data-theme="dark"] .livechip{border-color:#b45309}
+  .livechip svg{width:12px;height:12px}
+  .body{display:flex;flex:1;flex-direction:column;padding:16px}
+  .badges{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:8px}
+  .badge{border:1px solid var(--border);color:var(--muted);border-radius:999px;padding:2px 8px;font-size:11px;font-weight:500}
+  .cn{font-size:14px;font-weight:600;line-height:1.35;margin:0;transition:color .15s;
+    display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+  .card:hover .cn{color:var(--accent-text)}
+  .cs{font-size:12px;color:var(--muted);font-family:ui-monospace,Menlo,monospace;margin:4px 0 0}
+  .cp{display:flex;align-items:baseline;gap:8px;margin-top:auto;padding-top:12px}
+  .cp .p{font-size:18px;font-weight:700}.cp .o{font-size:14px;color:var(--muted);text-decoration:line-through}
+  .cbtn{position:relative;z-index:20;margin-top:12px;display:flex;align-items:center;justify-content:center;gap:8px;
+    width:100%;height:40px;border-radius:12px;border:none;background:var(--accent);color:var(--accent-ink);
+    font-weight:700;font-size:14px;cursor:pointer;font-family:inherit;transition:opacity .2s;
+    box-shadow:0 10px 15px -3px #0000001a,0 4px 6px -4px #0000001a}
+  .cbtn:hover{opacity:.9}
+  .cbtn svg{width:16px;height:16px}
+  .cbtn.oos{background:transparent;color:var(--muted);border:1px solid var(--border);cursor:not-allowed;opacity:.7;box-shadow:none}
 
   /* Pagination */
   .pager{display:flex;align-items:center;justify-content:center;gap:8px;margin-top:34px}
@@ -156,7 +171,7 @@
     <div class="search">🔍 Пошук за назвою або артикулом…</div>
     <div class="right">
       <button class="toggle" onclick="t()">◐ Тема</button>
-      <div class="icon">♡</div>
+      <a class="icon" href="wishlist-reference.html" aria-label="Обране" style="text-decoration:none">♡<span class="cartdot">2</span></a>
       <div class="icon">🛒<span class="cartdot">3</span></div>
       <button class="burger" onclick="openMenu()">☰</button>
     </div>
@@ -257,32 +272,47 @@
   </div>
 
 <script>
-  const names=[
-    ['Амортизатор капота Model 3 Highland','1645989-00-A','1 150','1 495','−23%',true],
-    ['Передній бампер Tesla Model 3','1084168-SO-E','7 450','8 200','−9%',true],
-    ['Скло лобове Tesla Model Y (2023-)','1921746-00-B','18 900','','',true],
-    ['Кронштейн гриля верхній Model X','1047020-00-E','980','','',false],
-    ['Колісний диск R18 Model 3 Highland','H3327F','6 200','6 900','−10%',true],
-    ['Завіса капота ліва Model 3','1077947-00-A','1 320','','',true],
-    ['Молдинг дверей правий Model 3','1095235-00-C','540','680','−21%',true],
-    ['Решітка бампера нижня Model Y','1494552-00-A','1 870','','',false],
-    ['Кліпса кріплення (к-т 10шт)','HX1182','120','','',true],
-    ['Підкрилок передній лівий Model 3','1084954-00-D','890','1 050','−15%',true],
-    ['Накладка порога Model 3 Highland','1660111-00-A','2 240','','',true],
-    ['Дзеркало бічне ліве Model Y','1494491-00-B','4 600','5 100','−10%',true],
+  // [назва, артикул, ціна, стара ціна, знижка%, тип(original|analog), стан(new|used|clearance), в наявності, є живі фото]
+  const products=[
+    ['Амортизатор капота Model 3 Highland','1645989-00-A','1 150','1 495',23,'original','new',true,true],
+    ['Передній бампер Tesla Model 3','1084168-SO-E','7 450','8 200',9,'original','new',true,false],
+    ['Скло лобове Tesla Model Y (2023-)','1921746-00-B','18 900','',0,'original','new',true,true],
+    ['Кронштейн гриля верхній Model X','1047020-00-E','980','',0,'analog','new',false,false],
+    ['Колісний диск R18 Model 3 Highland','H3327F','6 200','6 900',10,'original','used',true,true],
+    ['Завіса капота ліва Model 3','1077947-00-A','1 320','',0,'original','new',true,false],
+    ['Молдинг дверей правий Model 3','1095235-00-C','540','680',21,'analog','new',true,false],
+    ['Решітка бампера нижня Model Y','1494552-00-A','1 870','',0,'analog','new',false,false],
+    ['Кліпса кріплення (к-т 10шт)','HX1182','120','',0,'analog','new',true,false],
+    ['Підкрилок передній лівий Model 3','1084954-00-D','890','1 050',15,'original','clearance',true,true],
+    ['Накладка порога Model 3 Highland','1660111-00-A','2 240','',0,'original','new',true,false],
+    ['Дзеркало бічне ліве Model Y','1494491-00-B','4 600','5 100',10,'original','used',true,false],
   ];
-  document.getElementById('grid').innerHTML=names.map(([n,s,p,o,sv,inst])=>`
+  const TYPE_LABEL={original:'Оригінал',analog:'Аналог'};
+  const COND_LABEL={used:'Б/у',clearance:'Уцінка'}; // 'new' не показуємо
+  const CART_SVG='<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="8" cy="21" r="1"/><circle cx="19" cy="21" r="1"/><path d="M2.05 2.05h2l2.66 12.42a2 2 0 0 0 2 1.58h9.78a2 2 0 0 0 1.95-1.57l1.65-7.43H5.12"/></svg>';
+  const CAM_SVG='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14.5 4h-5L7 7H4a2 2 0 0 0-2 2v9a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2h-3l-2.5-3z"/><circle cx="12" cy="13" r="3"/></svg>';
+  document.getElementById('grid').innerHTML=products.map(([n,s,p,o,disc,type,cond,inStock,live])=>`
     <div class="card">
-      <div class="ct">
-        <div class="bs"><span class="badge acc">Новий</span>${o?'<span class="badge">Оригінал</span>':''}</div>
-        <div class="fav">♡</div>
-        фото
+      <a class="overlay" href="#" aria-label="${n}"></a>
+      <div class="imgwrap">
+        <div class="ct">
+          ${disc?`<span class="disc">−${disc}%</span>`:''}
+          <span class="ph">фото</span>
+        </div>
       </div>
-      <div class="cn">${n}</div>
-      <div class="cs">${s}</div>
-      <div class="cstock">${inst?'● В наявності':'<span style="color:var(--muted)">під замовлення</span>'}</div>
-      <div class="cp"><span class="p">${p} ₴</span>${o?`<span class="o">${o} ₴</span><span class="sv">${sv}</span>`:''}</div>
-      <button class="cbtn">У кошик</button>
+      <div class="body">
+        <div class="badges">
+          <span class="badge">${TYPE_LABEL[type]}</span>
+          ${COND_LABEL[cond]?`<span class="badge">${COND_LABEL[cond]}</span>`:''}
+          ${live?`<span class="livechip">${CAM_SVG} Живі фото</span>`:''}
+        </div>
+        <h3 class="cn">${n}</h3>
+        <p class="cs">${s}</p>
+        <div class="cp"><span class="p">${p} ₴</span>${o?`<span class="o">${o} ₴</span>`:''}</div>
+        ${inStock
+          ? `<button class="cbtn">${CART_SVG} У кошик</button>`
+          : `<button class="cbtn oos" disabled>Немає в наявності</button>`}
+      </div>
     </div>`).join('');
   const bd=document.getElementById('backdrop');
   function openMenu(){document.getElementById('mmenu').classList.add('open');bd.classList.add('show')}

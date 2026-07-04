@@ -22,6 +22,8 @@ erDiagram
   User            ||--o{ Order          : "замовлення"
   User            ||--o{ Address        : "адреси"
   Product         ||--o{ Lead           : "по товару"
+  User            ||--o{ WishlistItem   : "обране"
+  Product         ||--o{ WishlistItem   : "обране"
 
   Car {
     bigint id PK
@@ -65,7 +67,9 @@ erDiagram
     bigint userId FK
     json   customer
     json   delivery
-    json   payment
+    enum   deliveryMethod
+    enum   paymentMethod
+    enum   paymentStatus
     decimal total
     enum   status
   }
@@ -95,6 +99,11 @@ erDiagram
     string vin
     bigint productId FK
     enum   status
+  }
+  WishlistItem {
+    bigint userId FK
+    bigint productId FK
+    datetime createdAt
   }
 ```
 
@@ -176,6 +185,7 @@ model Product {
   relatedBy  ProductRelated[] @relation("RelatedProduct")
   orderItems OrderItem[]
   leads      Lead[]
+  wishlist   WishlistItem[]
 
   @@index([categoryId])
   @@index([isActive, stockQty])
@@ -202,7 +212,9 @@ model ProductImage {
   product   Product @relation(fields: [productId], references: [id], onDelete: Cascade)
   url       String                                         // S3 URL
   alt       String?
-  sortOrder Int     @default(0) @map("sort_order")
+  sortOrder Int     @default(0) @map("sort_order")         // порядок у межах свого набору
+  isLive    Boolean @default(false) @map("is_live")        // false = студійна галерея; true = «живі фото» (реальні знімки екземпляра, окремий блок на сторінці товару)
+  @@index([productId, isLive])
   @@map("product_images")
 }
 
@@ -236,8 +248,10 @@ model PaymentRequisite {
   bankName         String?  @map("bank_name")
   liqpayPublicKey  String?  @map("liqpay_public_key")
   liqpayPrivateKey String?  @map("liqpay_private_key")       // зашифровано
-  ibanActive       Boolean  @default(false) @map("iban_active")   // канал IBAN (активний один)
-  liqpayActive     Boolean  @default(false) @map("liqpay_active") // канал LiqPay (активний один)
+  monopayToken     String?  @map("monopay_token")            // токен monobank, зашифровано
+  ibanActive       Boolean  @default(false) @map("iban_active")    // канал IBAN (активний один)
+  liqpayActive     Boolean  @default(false) @map("liqpay_active")  // канал LiqPay (активний один)
+  monopayActive    Boolean  @default(false) @map("monopay_active") // канал Monopay (активний один)
   createdAt        DateTime @default(now()) @map("created_at")
   updatedAt        DateTime @updatedAt @map("updated_at")
   @@map("payment_requisites")
@@ -256,6 +270,7 @@ model User {
   addresses    Address[]
   orders       Order[]
   leads        Lead[]
+  wishlist     WishlistItem[]
   @@map("users")
 }
 
@@ -278,9 +293,12 @@ model Order {
   orderNumber String      @unique @map("order_number")
   userId      BigInt?     @map("user_id")                  // null = гість
   user        User?       @relation(fields: [userId], references: [id], onDelete: SetNull)
-  customer    Json                                         // { name, phone, email }
-  delivery    Json                                         // { method, city, warehouse }
-  payment     Json                                         // { method, status }
+  customer    Json                                         // снапшот { name, phone, email }
+  delivery    Json                                         // снапшот { city, warehouse }
+  // payment jsonb прибрано (ADR-0013): method/status у колонках; канал-деталі — колонкою за потреби
+  deliveryMethod DeliveryMethod @map("delivery_method")    // винесено з delivery.method (ADR-0013)
+  paymentMethod  PaymentMethod  @map("payment_method")     // винесено з payment.method (ADR-0013)
+  paymentStatus  PaymentStatus  @default(pending) @map("payment_status") // винесено з payment.status (ADR-0013)
   total       Decimal     @db.Decimal(12, 2)
   status      OrderStatus @default(new)
   isOneClick  Boolean     @default(false) @map("is_one_click")
@@ -289,6 +307,8 @@ model Order {
   items       OrderItem[]
   @@index([userId])
   @@index([status])
+  @@index([paymentStatus])                                 // фільтр «неоплачені» в адмінці
+  // пошук за customer.phone/email — trigram GIN на JSON-виразі (raw-міграція, див. §Індекси)
   @@map("orders")
 }
 
@@ -303,6 +323,20 @@ model OrderItem {
   price     Decimal  @db.Decimal(12, 2)
   qty       Int
   @@map("order_items")
+}
+
+// Обране (список бажань) — лише для авторизованих; сигнал інтересу для CRM (ADR-0012).
+// Toggle ідемпотентний (складений PK); популярність товару = COUNT за productId.
+model WishlistItem {
+  userId    BigInt   @map("user_id")
+  productId BigInt   @map("product_id")
+  user      User     @relation(fields: [userId],    references: [id], onDelete: Cascade)
+  product   Product  @relation(fields: [productId], references: [id], onDelete: Cascade)
+  createdAt DateTime @default(now()) @map("created_at")
+  @@id([userId, productId])
+  @@index([productId])            // адмін: «хто хоче цей товар» + популярність
+  @@index([userId, createdAt])    // сторінка обраного (новіші зверху)
+  @@map("wishlist_items")
 }
 
 // ───────── Ліди та контент ─────────
@@ -366,7 +400,7 @@ model Redirect {
 
 ## 3. Індекси та пошук
 
-- Базові індекси задано в схемі через `@@index` / `@unique` (category, price, isActive+stockQty, fitment.carId, orders.status/userId, leads.status+type).
+- Базові індекси задано в схемі через `@@index` / `@unique` (category, price, isActive+stockQty, fitment.carId, orders.status/paymentStatus/userId, leads.status+type).
 - **Пошук за назвою та артикулом** (FR-4.1) — трграмні GIN-індекси `pg_trgm`. Prisma не виражає `gin_trgm_ops` у схемі, тому додаємо **raw-міграцією**:
 
 ```sql
@@ -376,6 +410,13 @@ CREATE INDEX idx_products_name_trgm ON products USING gin (name gin_trgm_ops);
 CREATE INDEX idx_products_sku_trgm  ON products USING gin (sku  gin_trgm_ops);
 -- за потреби: GIN на attributes (jsonb)
 CREATE INDEX idx_products_attrs ON products USING gin (attributes);
+```
+
+- **Пошук замовлень за контактом** (адмінка, ADR-0013) — trigram GIN на JSON-виразах `customer->>'phone'` / `customer->>'email'` (той самий підхід — raw-міграція):
+
+```sql
+CREATE INDEX orders_customer_phone_idx ON orders USING gin ((customer ->> 'phone') gin_trgm_ops);
+CREATE INDEX orders_customer_email_idx ON orders USING gin ((customer ->> 'email') gin_trgm_ops);
 ```
 
 ---
@@ -413,4 +454,5 @@ const found = await prisma.$queryRaw`
 - **VIN-підбір (Фаза 3):** VIN → `Car` → `ProductFitment` → товари.
 - **Міграція (ADR-0002):** дедуплікація товарів за `sku`, побудова `ProductFitment` зі старих модельних категорій, наповнення `Car`, `Redirect`.
 - **`price_subscribe`** (FR-3.10) реалізується через `Lead` (type=`price_subscribe`); за потреби — окрема модель із нотифікаціями.
+- **Обране (wishlist)** — лише для авторизованих (`WishlistItem`, [ADR-0012](adr/0012-wishlist-auth-crm.md)): гість тисне ♡ → логін. Toggle ідемпотентний (upsert/delete за складеним PK). Адмін бачить попит («хто хоче цей товар» + контакт для дзвінка) — індекс за `productId`. Сторінка `/wishlist` — `noindex`.
 - **BigInt id:** за бажанням можна замінити на `Int` для простоти (якщо обсяги не вимагають 64-біт).

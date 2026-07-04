@@ -41,6 +41,16 @@
   .snav button.on{background:var(--a50);color:var(--accent-text)}
   [data-theme="dark"] .snav button.on{background:#2a1d05}
   .snav .ic{width:18px;text-align:center}
+  /* Accordion (nav group) */
+  .acc{display:flex;flex-direction:column}
+  .accbtn{display:flex;align-items:center;gap:11px;width:100%;border:none;background:transparent;color:var(--text);
+    padding:11px 12px;border-radius:10px;font-size:14px;font-weight:600;cursor:pointer;font-family:inherit;text-align:left}
+  .accbtn:hover{background:var(--surface2)}
+  .accbtn .chev{margin-left:auto;font-size:11px;color:var(--muted);transition:transform .18s ease}
+  .acc.open>.accbtn .chev{transform:rotate(90deg)}
+  .acc .accbody{display:none;flex-direction:column;gap:2px;margin-top:2px}
+  .acc.open>.accbody{display:flex}
+  .acc .accbody button{padding-left:41px;font-size:13px;font-weight:500}
   .sbtm{border-top:1px solid var(--border);padding-top:10px;display:flex;flex-direction:column;gap:2px}
 
   /* Topbar + content */
@@ -124,7 +134,16 @@
       <button class="on" onclick="go('dash',this)"><span class="ic">▦</span> Дашборд</button>
       <button onclick="go('products',this)"><span class="ic">📦</span> Товари</button>
       <button onclick="go('orders',this)"><span class="ic">🧾</span> Замовлення</button>
-      <button onclick="go('leads',this)"><span class="ic">📨</span> Ліди</button>
+      <div class="acc" id="acc-leads">
+        <button class="accbtn" onclick="tacc(this)"><span class="ic">📨</span> Ліди<span class="chev">▶</span></button>
+        <div class="accbody">
+          <button onclick="go('leads-fitment',this)">Підбір</button>
+          <button onclick="go('leads-pricematch',this)">Знайшли дешевше</button>
+          <button onclick="go('leads-subscribe',this)">Підписка на ціну</button>
+          <button onclick="go('leads-contact',this)">Контакт / 1 клік</button>
+          <button onclick="go('leads-wishlist',this)">♡ Обране (лайки)</button>
+        </div>
+      </div>
       <button onclick="go('cars',this)"><span class="ic">🚗</span> Довідник авто</button>
       <button onclick="go('categories',this)"><span class="ic">🗂</span> Категорії</button>
       <button onclick="go('blog',this)"><span class="ic">📝</span> Блог</button>
@@ -252,12 +271,53 @@
         </table></div>
       </div>
 
-      <!-- ЛІДИ -->
-      <div class="panel" id="p-leads">
-        <div class="ph"><h2>Ліди / заявки</h2></div>
+      <!-- ЛІДИ · ПІДБІР -->
+      <div class="panel" id="p-leads-fitment">
+        <div class="ph"><h2>Ліди · Підбір</h2></div>
         <div class="card"><table>
-          <thead><tr><th>Тип</th><th>Ім'я</th><th>Телефон</th><th>VIN / посилання</th><th>Деталь</th><th>Статус</th></tr></thead>
-          <tbody id="lead-rows"></tbody>
+          <thead><tr><th>Ім'я</th><th>Телефон</th><th>VIN</th><th>Повідомлення</th><th>Статус</th></tr></thead>
+          <tbody id="lead-fitment-rows"></tbody>
+        </table></div>
+      </div>
+
+      <!-- ЛІДИ · ЗНАЙШЛИ ДЕШЕВШЕ -->
+      <div class="panel" id="p-leads-pricematch">
+        <div class="ph"><h2>Ліди · Знайшли дешевше</h2></div>
+        <div class="card"><table>
+          <thead><tr><th>Ім'я</th><th>Телефон</th><th>Посилання</th><th>Деталь</th><th>Статус</th></tr></thead>
+          <tbody id="lead-pricematch-rows"></tbody>
+        </table></div>
+      </div>
+
+      <!-- ЛІДИ · ПІДПИСКА НА ЦІНУ -->
+      <div class="panel" id="p-leads-subscribe">
+        <div class="ph"><h2>Ліди · Підписка на ціну</h2></div>
+        <div class="card"><table>
+          <thead><tr><th>Ім'я</th><th>Телефон</th><th>Бажана ціна</th><th>Деталь</th><th>Статус</th></tr></thead>
+          <tbody id="lead-subscribe-rows"></tbody>
+        </table></div>
+      </div>
+
+      <!-- ЛІДИ · КОНТАКТ / 1 КЛІК -->
+      <div class="panel" id="p-leads-contact">
+        <div class="ph"><h2>Ліди · Контакт / 1 клік</h2></div>
+        <div class="card"><table>
+          <thead><tr><th>Ім'я</th><th>Телефон</th><th>Деталь</th><th>Статус</th></tr></thead>
+          <tbody id="lead-contact-rows"></tbody>
+        </table></div>
+      </div>
+
+      <!-- ОБРАНЕ (ЛАЙКИ) -->
+      <div class="panel" id="p-leads-wishlist">
+        <div class="ph"><h2>Обране (лайки)</h2></div>
+        <p style="color:var(--muted);font-size:14px;margin:0 0 18px;max-width:720px">Хто додав товар в обране — сигнал інтересу; телефонуйте зацікавленим клієнтам (ADR-0012).</p>
+        <div class="card" style="margin-bottom:18px">
+          <div class="ct">Найбажаніші товари</div>
+          <div style="padding:14px 18px" id="wl-top"></div>
+        </div>
+        <div class="card"><table>
+          <thead><tr><th>Клієнт</th><th>Контакт (тел./email)</th><th>Товар</th><th>Дата</th><th>Популярність</th></tr></thead>
+          <tbody id="wl-rows"></tbody>
         </table></div>
       </div>
 
@@ -281,14 +341,17 @@
 </div>
 
 <script>
-  const titles={dash:'Дашборд',products:'Товари','product-edit':'Редагування товару',orders:'Замовлення',leads:'Ліди',cars:'Довідник авто',categories:'Категорії',blog:'Блог',banners:'Банери',users:'Користувачі'};
+  const titles={dash:'Дашборд',products:'Товари','product-edit':'Редагування товару',orders:'Замовлення','leads-fitment':'Ліди · Підбір','leads-pricematch':'Ліди · Знайшли дешевше','leads-subscribe':'Ліди · Підписка на ціну','leads-contact':'Ліди · Контакт','leads-wishlist':'Обране (лайки)',cars:'Довідник авто',categories:'Категорії',blog:'Блог',banners:'Банери',users:'Користувачі'};
   function go(p,el){
     document.querySelectorAll('.panel').forEach(x=>x.classList.remove('on'));
     document.getElementById('p-'+p).classList.add('on');
     document.getElementById('ptitle').textContent=titles[p]||'';
-    if(el){document.querySelectorAll('.snav button').forEach(b=>b.classList.remove('on'));el.classList.add('on');}
+    if(el){document.querySelectorAll('.snav button, .snav .accbtn').forEach(b=>b.classList.remove('on'));el.classList.add('on');}
+    // Тримати акордеон «Ліди» відкритим, коли активний його під-пункт
+    if(p.indexOf('leads-')===0)document.getElementById('acc-leads').classList.add('open');
     document.querySelector('.content').scrollTo&&window.scrollTo({top:0});
   }
+  function tacc(el){el.closest('.acc').classList.toggle('open')}
   function t(){const b=document.body;b.dataset.theme=b.dataset.theme==='light'?'dark':'light'}
 
   const st={new:'badge orig',processing:'badge no',shipped:'badge no',done:'badge ok',canceled:'badge no'};
@@ -296,9 +359,56 @@
   document.getElementById('dash-orders').innerHTML=orders.map(([n,c,s,cl,t])=>`<tr><td class="mono">${n}</td><td>${c}</td><td>${s}</td><td><span class="${st[cl]}">${t}</span></td><td>${'24.06.2026'}</td></tr>`).join('');
   document.getElementById('ord-rows').innerHTML=orders.map(([n,c,s,cl,t])=>`<tr><td class="mono">${n}</td><td>${c}</td><td>Нова Пошта</td><td>Картка</td><td>${s}</td><td><select class="stsel"><option ${cl=='new'?'selected':''}>Новий</option><option ${cl=='processing'?'selected':''}>В обробці</option><option ${cl=='shipped'?'selected':''}>Відправлено</option><option ${cl=='done'?'selected':''}>Виконано</option><option>Скасовано</option></select></td><td>24.06.2026</td></tr>`).join('');
 
+  const stsel=`<select class="stsel"><option>Новий</option><option>Опрацьовано</option></select>`;
+
+  // Дашборд: зведення заявок усіх типів
   const leads=[['Підбір','Олег','+380 67…','VIN 5YJ3…'],['Знайшли дешевше','Марія','+380 50…','посилання'],['Підписка на ціну','Іван','+380 63…','1645989-00-A'],['Контакт','Сергій','+380 97…','—']];
   document.getElementById('dash-leads').innerHTML=leads.map(([t,n,p,v])=>`<tr><td>${t}</td><td>${n}</td><td>${p}</td><td>${v}</td></tr>`).join('');
-  document.getElementById('lead-rows').innerHTML=leads.map(([t,n,p,v])=>`<tr><td>${t}</td><td>${n}</td><td>${p}</td><td>${v}</td><td>—</td><td><select class="stsel"><option>Новий</option><option>Опрацьовано</option></select></td></tr>`).join('');
+
+  // Ліди · Підбір: [ім'я, телефон, VIN, повідомлення]
+  const leadsFitment=[
+    ['Олег','+380 67 214 55 12','5YJ3E1EA7KF','Потрібен важіль передньої підвіски на Model 3'],
+    ['Наталія','+380 50 998 33 07','7SAYGDEE9PF','Шукаю оригінальний бампер задній, Model Y Juniper'],
+    ['СТО «Захід»','+380 63 700 12 90','—','Підберіть комплект гальмівних колодок на Model S'],
+  ];
+  document.getElementById('lead-fitment-rows').innerHTML=leadsFitment.map(([n,p,vin,msg])=>`<tr><td>${n}</td><td>${p}</td><td class="mono">${vin}</td><td>${msg}</td><td>${stsel}</td></tr>`).join('');
+
+  // Ліди · Знайшли дешевше: [ім'я, телефон, посилання, деталь]
+  const leadsPrice=[
+    ['Марія','+380 50 112 88 41','autopro.ua/1645989','Амортизатор капота Model 3 Highland'],
+    ['Богдан','+380 97 640 21 15','olx.ua/tesla-disk-r18','Колісний диск R18 Highland'],
+  ];
+  document.getElementById('lead-pricematch-rows').innerHTML=leadsPrice.map(([n,p,url,part])=>`<tr><td>${n}</td><td>${p}</td><td><a class="mono" style="color:var(--info)" href="#">${url}</a></td><td>${part}</td><td>${stsel}</td></tr>`).join('');
+
+  // Ліди · Підписка на ціну: [ім'я, телефон, бажана ціна, деталь]
+  const leadsSubscribe=[
+    ['Іван','+380 63 305 74 20','1 000 ₴','Амортизатор капота Model 3 Highland (1645989-00-A)'],
+    ['Оксана','+380 68 415 90 66','16 500 ₴','Скло лобове Model Y (2023-)'],
+  ];
+  document.getElementById('lead-subscribe-rows').innerHTML=leadsSubscribe.map(([n,p,price,part])=>`<tr><td>${n}</td><td>${p}</td><td>${price}</td><td>${part}</td><td>${stsel}</td></tr>`).join('');
+
+  // Ліди · Контакт / 1 клік: [ім'я, телефон, деталь]
+  const leadsContact=[
+    ['Сергій','+380 97 220 11 84','Клаксон 400/500 Hz'],
+    ['Юлія','+380 66 512 03 39','—'],
+  ];
+  document.getElementById('lead-contact-rows').innerHTML=leadsContact.map(([n,p,part])=>`<tr><td>${n}</td><td>${p}</td><td>${part}</td><td>${stsel}</td></tr>`).join('');
+
+  // Обране (лайки) — сигнал інтересу (ADR-0012): [клієнт, контакт, товар, дата, популярність]
+  const wl=[
+    ['Андрій П.','+380 67 811 42 90','Амортизатор капота Model 3 Highland','28.06.2026',12],
+    ['Ірина М.','irina.m@gmail.com','Скло лобове Model Y (2023-)','27.06.2026',5],
+    ['Тарас Б.','+380 50 330 71 08','Амортизатор капота Model 3 Highland','26.06.2026',12],
+    ['Vlad K.','vlad.k@ukr.net','Колісний диск R18 Highland','25.06.2026',8],
+    ['Марта Г.','+380 63 900 55 21','Клаксон 400/500 Hz','24.06.2026',3],
+  ];
+  document.getElementById('wl-rows').innerHTML=wl.map(([c,ct,prod,d,pop])=>`<tr><td>${c}</td><td>${ct}</td><td>${prod}</td><td>${d}</td><td><span class="badge orig">♡ ${pop}</span></td></tr>`).join('');
+
+  // Найбажаніші товари — топ за кількістю додавань
+  const wlCount={};
+  wl.forEach(([,,prod,,pop])=>{wlCount[prod]=pop});
+  const wlTop=Object.entries(wlCount).sort((a,b)=>b[1]-a[1]);
+  document.getElementById('wl-top').innerHTML=wlTop.map(([prod,pop])=>`<span class="chip">${prod} · ♡ ${pop}</span>`).join('');
 
   const prods=[
     ['Амортизатор капота Model 3 Highland','1645989-00-A','Кузов',['Model 3','Model Y','Highland'],'1 150 ₴','orig',true],

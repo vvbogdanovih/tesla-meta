@@ -1,0 +1,227 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex, nofollow">
+<title>Tesla Lviv — обране (референс)</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Unbounded:wght@300;400;500;600;700&family=Onest:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --n0:#fff;--n50:#f7f8fa;--n100:#eef0f3;--n200:#dfe3e8;--n300:#c4cad2;--n400:#9aa3ad;
+    --n500:#6b7480;--n600:#4a525c;--n700:#333a42;--n800:#20262c;--n900:#13171b;--n950:#0c0f12;
+    --a50:#FFFBEB;--a400:#FBBF24;--a500:#F59E0B;--a600:#D97706;--a700:#B45309;
+    --ok:#16a34a;--sale:#dc2626;
+    --bg:var(--n50);--surface:var(--n0);--surface2:var(--n100);--border:var(--n200);
+    --text:var(--n900);--muted:var(--n500);
+    --accent:var(--a500);--accent-hover:var(--a600);--accent-ink:#231300;--accent-text:var(--a700);
+    --container:1240px;--gutter:24px;
+  }
+  [data-theme="dark"]{
+    --bg:var(--n950);--surface:var(--n900);--surface2:var(--n800);--border:var(--n700);
+    --text:var(--n50);--muted:var(--n400);--ok:#22c55e;--sale:#f87171;
+    --accent-hover:var(--a400);--accent-text:var(--a400);
+  }
+  *{box-sizing:border-box}
+  body{margin:0;font-family:'Onest',-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Arial,sans-serif;
+    background:var(--bg);color:var(--text);-webkit-font-smoothing:antialiased;transition:background .25s,color .25s}
+  a{color:var(--accent-text);text-decoration:none}
+  .container{max-width:var(--container);margin:0 auto;padding-left:var(--gutter);padding-right:var(--gutter)}
+
+  .hdr{position:sticky;top:0;z-index:20;background:var(--surface);border-bottom:1px solid var(--border)}
+  .hdr-inner{display:flex;align-items:center;gap:20px;padding-top:14px;padding-bottom:14px}
+  .logo{font-weight:800;letter-spacing:.04em;font-size:18px;color:var(--text);display:inline-flex;align-items:center}
+  .logo img{height:34px;width:auto;display:block}
+  [data-theme="dark"] .logo img{filter:brightness(0) invert(1)}
+  .nav{display:flex;gap:18px;font-size:14px}.nav a{color:var(--text);font-weight:500}
+  .search{flex:1;max-width:420px;margin:0 auto;display:flex;align-items:center;gap:8px;background:var(--surface2);
+    border:1px solid var(--border);border-radius:10px;padding:9px 14px;color:var(--muted);font-size:13px}
+  .hdr .right{display:flex;align-items:center;gap:12px}
+  .icon{width:38px;height:38px;border-radius:10px;border:1px solid var(--border);background:var(--surface);
+    display:flex;align-items:center;justify-content:center;cursor:pointer;color:var(--text);position:relative}
+  .cartdot{position:absolute;top:-6px;right:-6px;background:var(--accent);color:var(--accent-ink);font-size:10px;
+    font-weight:800;border-radius:999px;min-width:18px;height:18px;display:flex;align-items:center;justify-content:center;padding:0 4px}
+  .toggle{cursor:pointer;border:1px solid var(--border);background:var(--surface);color:var(--text);border-radius:999px;padding:9px 14px;font-size:13px}
+
+  .crumbs{font-size:13px;color:var(--muted);padding:18px 0 10px}
+  .crumbs a{color:var(--muted)}.crumbs span{margin:0 8px;opacity:.5}
+
+  /* Заголовок сторінки — стиль з account-reference (.panel h2) */
+  .head{display:flex;align-items:baseline;gap:12px;flex-wrap:wrap;margin:6px 0 22px}
+  .head h2{font-size:22px;margin:0;font-weight:700;letter-spacing:-.01em}
+  .head .count{font-size:14px;color:var(--muted)}
+
+  /* Mobile: burger menu + off-canvas */
+  .burger{display:none;width:38px;height:38px;border-radius:10px;border:1px solid var(--border);background:var(--surface);
+    color:var(--text);font-size:18px;cursor:pointer;align-items:center;justify-content:center}
+  .backdrop{position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:40;opacity:0;visibility:hidden;transition:.2s}
+  .backdrop.show{opacity:1;visibility:visible}
+  .mmenu{position:fixed;top:0;right:0;height:100%;width:84%;max-width:340px;background:var(--surface);z-index:50;
+    transform:translateX(100%);transition:transform .25s;padding:20px;display:flex;flex-direction:column;gap:6px;overflow:auto}
+  .mmenu.open{transform:none}
+  .mmenu .mhead{display:flex;justify-content:space-between;align-items:center;margin-bottom:10px}
+  .mmenu .close{border:none;background:transparent;color:var(--text);font-size:22px;cursor:pointer}
+  .mmenu .msearch{display:flex;align-items:center;gap:8px;background:var(--surface2);border:1px solid var(--border);
+    border-radius:10px;padding:11px 14px;color:var(--muted);font-size:14px;margin-bottom:10px}
+  .mmenu a{font-size:16px;padding:13px 6px;border-bottom:1px solid var(--border);font-weight:500}
+
+  @media(max-width:720px){.nav,.search{display:none}.burger{display:inline-flex}}
+
+  /* Grid */
+  .pgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:16px;padding-bottom:6px}
+
+  /* Картка товару — відповідає ProductCard.tsx (tesla-frontend) */
+  .card{position:relative;display:flex;flex-direction:column;overflow:hidden;background:var(--surface);
+    border:1px solid var(--border);border-radius:16px;transition:box-shadow .2s}
+  .card:hover{box-shadow:0 10px 15px -3px #0000001a,0 4px 6px -4px #0000001a}
+  .card .overlay{position:absolute;inset:0;z-index:10}          /* розтягнуте посилання на товар */
+  .card .imgwrap{padding:16px 16px 0}
+  .ct{position:relative;aspect-ratio:1;overflow:hidden;border-radius:12px;background:var(--surface2);
+    display:flex;align-items:center;justify-content:center;color:var(--n400);font-size:11px}
+  [data-theme="dark"] .ct{background:var(--n800)}
+  .card:hover .ct .ph{transform:scale(1.05)}
+  .ct .ph{transition:transform .3s;color:var(--n400);font-size:11px}
+  .disc{position:absolute;left:8px;top:8px;background:var(--accent);color:var(--accent-ink);
+    border-radius:6px;padding:2px 6px;font-size:11px;font-weight:800;letter-spacing:.01em}
+  .livechip{display:inline-flex;align-items:center;gap:4px;border:1px solid #fcd34d;color:var(--accent-text);
+    border-radius:999px;padding:2px 8px;font-size:11px;font-weight:600}
+  [data-theme="dark"] .livechip{border-color:#b45309}
+  .livechip svg{width:12px;height:12px}
+  .body{display:flex;flex:1;flex-direction:column;padding:16px}
+  .badges{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:8px}
+  .badge{border:1px solid var(--border);color:var(--muted);border-radius:999px;padding:2px 8px;font-size:11px;font-weight:500}
+  .cn{font-size:14px;font-weight:600;line-height:1.35;margin:0;transition:color .15s;
+    display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+  .card:hover .cn{color:var(--accent-text)}
+  .cs{font-size:12px;color:var(--muted);font-family:ui-monospace,Menlo,monospace;margin:4px 0 0}
+  .cp{display:flex;align-items:baseline;gap:8px;margin-top:auto;padding-top:12px}
+  .cp .p{font-size:18px;font-weight:700}.cp .o{font-size:14px;color:var(--muted);text-decoration:line-through}
+  .cbtn{position:relative;z-index:20;margin-top:12px;display:flex;align-items:center;justify-content:center;gap:8px;
+    width:100%;height:40px;border-radius:12px;border:none;background:var(--accent);color:var(--accent-ink);
+    font-weight:700;font-size:14px;cursor:pointer;font-family:inherit;transition:opacity .2s;
+    box-shadow:0 10px 15px -3px #0000001a,0 4px 6px -4px #0000001a}
+  .cbtn:hover{opacity:.9}
+  .cbtn svg{width:16px;height:16px}
+  .cbtn.oos{background:transparent;color:var(--muted);border:1px solid var(--border);cursor:not-allowed;opacity:.7;box-shadow:none}
+
+  /* Активний перемикач «в обраному» (прибрати з обраного) — поверх картки */
+  .wish{position:absolute;top:8px;right:8px;z-index:20;width:34px;height:34px;border-radius:50%;
+    border:1px solid var(--border);background:var(--surface);color:var(--accent);font-size:17px;line-height:1;
+    display:flex;align-items:center;justify-content:center;cursor:pointer;font-family:inherit;
+    box-shadow:0 1px 3px #0000001a;transition:transform .15s,color .15s,background .15s}
+  .wish:hover{transform:scale(1.08)}
+
+  /* Порожній стан */
+  .empty{background:var(--surface);border:1px solid var(--border);border-radius:16px;max-width:460px;
+    margin:8px auto 0;padding:44px 28px;text-align:center;display:flex;flex-direction:column;align-items:center;gap:14px}
+  .empty .heart{font-size:52px;line-height:1;color:var(--n300)}
+  [data-theme="dark"] .empty .heart{color:var(--n600)}
+  .empty h3{font-size:18px;font-weight:700;margin:0}
+  .empty p{font-size:14px;color:var(--muted);margin:0;max-width:320px}
+  .empty .cta{display:inline-flex;align-items:center;justify-content:center;gap:8px;height:46px;padding:0 24px;
+    border-radius:12px;border:none;background:var(--accent);color:var(--accent-ink);font-weight:700;font-size:14px;
+    cursor:pointer;font-family:inherit;text-decoration:none;transition:background .15s,transform .15s}
+  .empty .cta:hover{background:var(--accent-hover);transform:translateY(-1px)}
+
+  .section-label{font-size:12px;color:var(--muted);text-transform:uppercase;letter-spacing:.06em;
+    font-weight:700;margin:44px 0 14px;padding-top:22px;border-top:1px dashed var(--border)}
+
+  .devnote{padding:26px 0 50px;color:var(--muted);font-size:12px;line-height:1.6}
+  .devnote code{background:var(--surface2);padding:2px 6px;border-radius:4px}
+</style>
+</head>
+<body data-theme="light">
+  <header class="hdr"><div class="hdr-inner container">
+    <a class="logo" href="#"><img src="logo.png" alt="Tesla Spare Parts Lviv"></a>
+    <nav class="nav"><a>Магазин</a><a>Про нас</a><a>Контакти</a></nav>
+    <div class="search">🔍 Пошук за назвою або артикулом…</div>
+    <div class="right">
+      <button class="toggle" onclick="t()">◐ Тема</button>
+      <a class="icon" href="wishlist-reference.html" aria-label="Обране" style="text-decoration:none;color:var(--accent)">♥<span class="cartdot">3</span></a>
+      <div class="icon">🛒<span class="cartdot">3</span></div>
+      <button class="burger" onclick="openMenu()">☰</button>
+    </div>
+  </div></header>
+
+  <!-- Мобільне меню + backdrop -->
+  <div class="backdrop" id="backdrop" onclick="closeAll()"></div>
+  <nav class="mmenu" id="mmenu">
+    <div class="mhead"><span class="logo"><img src="logo.png" alt="Tesla Spare Parts Lviv"></span><button class="close" onclick="closeAll()">✕</button></div>
+    <div class="msearch">🔍 Пошук за назвою або артикулом…</div>
+    <a>Магазин</a><a>Про нас</a><a>Контакти</a><a>Блог</a>
+  </nav>
+
+  <div class="container">
+    <nav class="crumbs"><a>Головна</a><span>/</span>Обране</nav>
+
+    <div class="head">
+      <h2>Обране</h2>
+      <div class="count">3 товари</div>
+    </div>
+
+    <!-- Стан із товарами -->
+    <div class="pgrid" id="grid"></div>
+
+    <!-- Порожній стан -->
+    <div class="section-label">Порожній стан (коли в обраному немає товарів)</div>
+    <section class="empty">
+      <div class="heart">♡</div>
+      <h3>У «Обраному» поки порожньо</h3>
+      <p>Додавайте товари, тиснучи на ♡ у каталозі — вони зберуться тут, щоб не загубитись.</p>
+      <a class="cta" href="catalog-page-reference.html">До каталогу</a>
+    </section>
+
+    <p class="devnote">
+      Референс сторінки «Обране» (<code>/wishlist</code>) за FRD. Обране доступне <b>лише авторизованим</b> користувачам
+      (ADR-0012): гість, який тисне ♡, перенаправляється на екран логіну/реєстрації. Лічильник у хедері
+      синхронізується зі стором <code>useWishlistStore</code>. Сторінка <code>/wishlist</code> — <code>noindex</code>
+      (приватні дані користувача, не для індексації). Картки використовують той самий компонент
+      <code>ProductCard.tsx</code>, що й каталог; активний ♥ означає «прибрати з обраного». Кожен лайк — сигнал
+      інтересу: адмін бачить попит на конкретні позиції та може зателефонувати зацікавленому клієнту.
+    </p>
+  </div>
+
+<script>
+  // [назва, артикул, ціна, стара ціна, знижка%, тип(original|analog), стан(new|used|clearance), в наявності, є живі фото]
+  const products=[
+    ['Амортизатор капота Model 3 Highland','1645989-00-A','1 150','1 495',23,'original','new',true,true],
+    ['Скло лобове Model Y (2023-)','1921746-00-B','18 900','',0,'original','new',true,true],
+    ['Колісний диск R18 Highland','H3327F','6 200','',0,'original','used',true,true],
+  ];
+  const TYPE_LABEL={original:'Оригінал',analog:'Аналог'};
+  const COND_LABEL={used:'Б/у',clearance:'Уцінка'}; // 'new' не показуємо
+  const CART_SVG='<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="8" cy="21" r="1"/><circle cx="19" cy="21" r="1"/><path d="M2.05 2.05h2l2.66 12.42a2 2 0 0 0 2 1.58h9.78a2 2 0 0 0 1.95-1.57l1.65-7.43H5.12"/></svg>';
+  const CAM_SVG='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14.5 4h-5L7 7H4a2 2 0 0 0-2 2v9a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2h-3l-2.5-3z"/><circle cx="12" cy="13" r="3"/></svg>';
+  document.getElementById('grid').innerHTML=products.map(([n,s,p,o,disc,type,cond,inStock,live])=>`
+    <div class="card">
+      <a class="overlay" href="#" aria-label="${n}"></a>
+      <button class="wish" title="Прибрати з обраного" aria-label="Прибрати з обраного">♥</button>
+      <div class="imgwrap">
+        <div class="ct">
+          ${disc?`<span class="disc">−${disc}%</span>`:''}
+          <span class="ph">фото</span>
+        </div>
+      </div>
+      <div class="body">
+        <div class="badges">
+          <span class="badge">${TYPE_LABEL[type]}</span>
+          ${COND_LABEL[cond]?`<span class="badge">${COND_LABEL[cond]}</span>`:''}
+          ${live?`<span class="livechip">${CAM_SVG} Живі фото</span>`:''}
+        </div>
+        <h3 class="cn">${n}</h3>
+        <p class="cs">${s}</p>
+        <div class="cp"><span class="p">${p} ₴</span>${o?`<span class="o">${o} ₴</span>`:''}</div>
+        ${inStock
+          ? `<button class="cbtn">${CART_SVG} У кошик</button>`
+          : `<button class="cbtn oos" disabled>Немає в наявності</button>`}
+      </div>
+    </div>`).join('');
+  const bd=document.getElementById('backdrop');
+  function openMenu(){document.getElementById('mmenu').classList.add('open');bd.classList.add('show')}
+  function closeAll(){document.getElementById('mmenu').classList.remove('open');bd.classList.remove('show')}
+  function t(){const b=document.body;b.dataset.theme=b.dataset.theme==='light'?'dark':'light'}
+</script>
+</body>
+</html>

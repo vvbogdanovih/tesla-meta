@@ -31,7 +31,7 @@ flowchart TB
   subgraph api["tesla-backend · NestJS"]
     direction TB
     G["Guards: JwtAuth · Roles · Throttler"]
-    M["Модулі: catalog · cars · categories · search · cart · orders · auth · users · account · leads · blog · banners · media · integrations · admin · seo"]
+    M["Модулі: catalog · cars · categories · search · cart · wishlist · orders · auth · users · account · leads · blog · banners · media · integrations · admin · seo"]
     P["PrismaService"]
     G --> M --> P
   end
@@ -58,6 +58,7 @@ flowchart TB
 | **FitmentModule** | M2M сумісність товар↔авто (керування, запити) | admin write |
 | **SearchModule** | Пошук + автодоповнення (pg_trgm) | public |
 | **CartModule** | Кошик (синхронізація для авторизованих) | user/guest |
+| **WishlistModule** | Обране: список користувача (CRUD, auth) + адмін-огляд попиту/контактів ([ADR-0012](adr/0012-wishlist-auth-crm.md)) | user (свої) / admin (read) |
 | **OrdersModule** | Створення/перегляд/зміна статусу замовлень | user (свої) / admin (всі) |
 | **LeadsModule** | Заявки (підбір/дешевше/підписка/контакт) + нотифікації | public create / admin read |
 | **BlogModule** | Статті | public read / content write |
@@ -104,7 +105,7 @@ create(@Body() dto: CreateProductDto) { … }
 | Інтеграція | Призначення | Нотатки |
 |------------|-------------|---------|
 | **Нова Пошта API** | Міста, відділення/поштомати, ТТН/статуси | Проксі через бекенд (ключ не на клієнті); кеш міст/відділень |
-| **LiqPay (еквайринг)** | Онлайн-оплата карткою | Провайдер — **LiqPay** ([ADR-0008](adr/0008-payment-requisites-channels.md)); ключі — у `PaymentRequisite` (зашифровано); вебхуки статусів. Адаптер дозволяє заміну |
+| **LiqPay (еквайринг)** | Онлайн-оплата карткою | Провайдер — **LiqPay** ([ADR-0008](adr/0008-payment-requisites-channels.md)); ключі — у `PaymentRequisite` (зашифровано); вебхуки статусів оновлюють колонку `Order.paymentStatus` ([ADR-0013](adr/0013-order-status-method-columns.md)), не JSON. Адаптер дозволяє заміну |
 | **Email / SMS / Telegram** | Підтвердження замовлень, нотифікації лідів менеджеру | Черга/ретраї; шаблони |
 | **S3 / CDN** | Зберігання зображень, OG | Підписані URL для завантаження з адмінки |
 
@@ -165,6 +166,7 @@ tesla-backend/
 │   │   ├── fitment/
 │   │   ├── search/
 │   │   ├── cart/
+│   │   ├── wishlist/
 │   │   ├── orders/
 │   │   ├── leads/
 │   │   ├── blog/
