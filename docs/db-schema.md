@@ -128,6 +128,7 @@ enum OrderStatus      { new processing shipped done canceled }
 enum DeliveryMethod   { np ukrposhta pickup }
 enum PaymentMethod    { card cod iban cash }
 enum PaymentStatus    { pending paid failed refunded }
+enum NpWarehouseType  { branch postomat cargo }        // відділення / поштомат / вантажне (ADR-0014)
 enum UserRole         { user admin superadmin }
 enum LeadType         { fitment price_match price_subscribe contact }
 enum LeadStatus       { new handled }
@@ -394,6 +395,43 @@ model Redirect {
   status   Int    @default(301)
   @@map("redirects")
 }
+
+// ───────── Nova Poshta — дзеркало довідника (ADR-0014) ─────────
+// Автопідказки в чекауті беруться з цих таблиць, не з АПІ Пошти на кожен запит.
+// Синхронізація: cron (RUN_CRON) + ручна кнопка superadmin. Trigram-GIN — raw-міграцією.
+model NpCity {
+  ref        String        @id                          // NP Ref (стабільний ключ)
+  name       String
+  area       String?                                     // область
+  updatedAt  DateTime      @updatedAt @map("updated_at")
+  warehouses NpWarehouse[]
+  @@map("np_cities")                                     // + GIN(name gin_trgm_ops)
+}
+
+model NpWarehouse {
+  ref         String          @id
+  cityRef     String          @map("city_ref")
+  city        NpCity          @relation(fields: [cityRef], references: [ref], onDelete: Cascade)
+  number      String
+  description String
+  type        NpWarehouseType                            // branch | postomat | cargo
+  maxWeight   Decimal?        @map("max_weight") @db.Decimal(10, 2)
+  isActive    Boolean         @default(true) @map("is_active")
+  updatedAt   DateTime        @updatedAt @map("updated_at")
+  @@index([cityRef, type])
+  @@map("np_warehouses")                                 // + GIN(description gin_trgm_ops)
+}
+
+// Стан останньої синхронізації (singleton id=1) — для кнопки/статусу в адмінці
+model NpSyncState {
+  id              Int       @id @default(1)
+  status          String?                                // ok | error | running
+  lastRunAt       DateTime? @map("last_run_at")
+  citiesCount     Int       @default(0) @map("cities_count")
+  warehousesCount Int       @default(0) @map("warehouses_count")
+  error           String?
+  @@map("np_sync_state")
+}
 ```
 
 ---
@@ -417,6 +455,13 @@ CREATE INDEX idx_products_attrs ON products USING gin (attributes);
 ```sql
 CREATE INDEX orders_customer_phone_idx ON orders USING gin ((customer ->> 'phone') gin_trgm_ops);
 CREATE INDEX orders_customer_email_idx ON orders USING gin ((customer ->> 'email') gin_trgm_ops);
+```
+
+- **Автопідказки Нової Пошти** (чекаут, ADR-0014) — trigram GIN на назві міста та адресі відділення:
+
+```sql
+CREATE INDEX np_cities_name_trgm_idx ON np_cities USING gin (name gin_trgm_ops);
+CREATE INDEX np_warehouses_description_trgm_idx ON np_warehouses USING gin (description gin_trgm_ops);
 ```
 
 ---
