@@ -64,7 +64,8 @@ flowchart TB
 | **BlogModule** | Статті | public read / content write |
 | **BannersModule** | Банери головної | admin write |
 | **ContentBlocksModule** | Наскрізні тексти сайту (гарантія, доставка) — фікс. набір, rich text ([ADR-0009](adr/0009-content-blocks.md)) | public read / admin write |
-| **PaymentRequisitesModule** | Реквізити продавця + канали IBAN/LiqPay, шифрування ключа ([ADR-0008](adr/0008-payment-requisites-channels.md)) | **superadmin** |
+| **PaymentRequisitesModule** | Реквізити продавця + канали IBAN/LiqPay/monopay, шифрування ключа ([ADR-0008](adr/0008-payment-requisites-channels.md)) | **superadmin** |
+| **PaymentsModule** | Онлайн-оплата monopay: створення інвойсу, вебхук (`X-Sign`), поллінг статусу ([ADR-0015](adr/0015-monopay-online-payment.md)) | public (invoice/webhook/status) |
 | **S3Module / Media** | Завантаження → конвертація в **AVIF** (sharp), R2; presign ([ADR-0007](adr/0007-image-pipeline-avif.md)) | admin |
 | **IntegrationsModule** | Нова Пошта, еквайринг (LiqPay), email/SMS — проксі/адаптери | internal |
 | **SeoModule** | `sitemap.xml`, `robots.txt`, редиректи | public |
@@ -105,11 +106,39 @@ create(@Body() dto: CreateProductDto) { … }
 | Інтеграція | Призначення | Нотатки |
 |------------|-------------|---------|
 | **Нова Пошта API** | Міста, відділення/поштомати, ТТН/статуси | **Дзеркало довідника в БД** (`np_cities`/`np_warehouses`), автопідказки — зі своєї бази, не з АПІ на кожен запит ([ADR-0014](adr/0014-nova-poshta-directory-mirror.md)). Синхронізація: cron (`RUN_CRON`, 1/15 числа) + ручна кнопка superadmin (`POST /delivery/np/sync`). Ключ не на клієнті |
-| **LiqPay (еквайринг)** | Онлайн-оплата карткою | Провайдер — **LiqPay** ([ADR-0008](adr/0008-payment-requisites-channels.md)); ключі — у `PaymentRequisite` (зашифровано); вебхуки статусів оновлюють колонку `Order.paymentStatus` ([ADR-0013](adr/0013-order-status-method-columns.md)), не JSON. Адаптер дозволяє заміну |
+| **monopay (Monobank acquiring)** | Онлайн-оплата карткою (метод `card`) | Провайдер — **monopay** ([ADR-0015](adr/0015-monopay-online-payment.md)); токен `X-Token` — у `PaymentRequisite.monopayToken` (зашифровано, ADR-0008). Потік: інвойс (`/merchant/invoice/create`) → `pageUrl` → оплата → вебхук `X-Sign` / поллінг оновлюють `Order.paymentStatus` ([ADR-0013](adr/0013-order-status-method-columns.md)). `Order.paymentInvoiceId` привʼязує колбек. `API_PUBLIC_URL` — для `webHookUrl` (без нього лише поллінг). LiqPay можливий як другий провайдер |
 | **Email / SMS / Telegram** | Підтвердження замовлень, нотифікації лідів менеджеру | Черга/ретраї; шаблони |
 | **S3 / CDN** | Зберігання зображень, OG | Підписані URL для завантаження з адмінки |
 
 Інтеграції — за **адаптер-патерном** (інтерфейс + провайдер), щоб міняти провайдера (напр. еквайринг) без зміни бізнес-логіки.
+
+### Потік онлайн-оплати monopay ([ADR-0015](adr/0015-monopay-online-payment.md))
+
+```mermaid
+sequenceDiagram
+  participant U as Клієнт
+  participant F as Frontend
+  participant B as Backend (Payments)
+  participant M as monopay API
+  U->>F: Чекаут, оплата «Картка онлайн»
+  F->>B: POST /orders (paymentMethod=card)
+  B->>B: Створити Order (paymentStatus=pending)
+  B->>M: POST /merchant/invoice/create (X-Token, amount)
+  M-->>B: { invoiceId, pageUrl }
+  B->>B: Зберегти paymentInvoiceId
+  B-->>F: Order + paymentUrl
+  F->>M: Редірект на pageUrl (оплата)
+  M-->>F: redirectUrl → /order/{n}/success
+  par Вебхук (осн. канал)
+    M->>B: POST /payments/monopay/webhook (X-Sign)
+    B->>B: Верифікація підпису → оновити paymentStatus
+  and Поллінг (fallback)
+    F->>B: GET /payments/monopay/status/{n}
+    B->>M: GET /merchant/invoice/status
+    M-->>B: status → оновити paymentStatus
+    B-->>F: { paymentStatus }
+  end
+```
 
 ---
 

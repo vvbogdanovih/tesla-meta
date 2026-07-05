@@ -142,7 +142,8 @@
 - **FR-6.1:** Форма: ПІБ, телефон, email.
 - **FR-6.2:** Доставка: Нова Пошта / Укрпошта / **самовивіз**, вибір міста + відділення.
 - **FR-6.2a [НОВЕ]:** Для **Нової Пошти** — автопідказки при вводі: combobox міста → перемикач **Відділення / Поштомат** → combobox відділення/поштомата. Дані — з локального дзеркала довідника НП (не з АПІ на кожен запит), пошук trigram ([ADR-0014](adr/0014-nova-poshta-directory-mirror.md)). У снапшот замовлення зберігаються `cityRef`/`warehouseRef`/`warehouseType` (для майбутнього ТТН). Укрпошта — поки вільний текст.
-- **FR-6.3:** Оплата (enum `PaymentMethod`): **онлайн карткою — LiqPay або Monopay** (`card`) / накладений платіж (`cod`) / **за реквізитами IBAN** (`iban`) / **готівка — лише самовивіз** (`cash`). Реквізити отримувача та ключі LiqPay/Monopay — у `PaymentRequisite`; 3 канали (IBAN/LiqPay/Monopay), активний — один на канал ([ADR-0008](adr/0008-payment-requisites-channels.md)).
+- **FR-6.3:** Оплата (enum `PaymentMethod`): **онлайн карткою — monopay** (`card`) / накладений платіж (`cod`) / **за реквізитами IBAN** (`iban`) / **готівка — лише самовивіз** (`cash`). Реквізити отримувача та токен monopay — у `PaymentRequisite`; 3 канали (IBAN/LiqPay/Monopay), активний — один на канал ([ADR-0008](adr/0008-payment-requisites-channels.md)).
+- **FR-6.3a [НОВЕ]:** Онлайн-оплата карткою — провайдер **monopay (Monobank acquiring)** ([ADR-0015](adr/0015-monopay-online-payment.md)). При `card` бекенд створює інвойс і повертає `paymentUrl` → редірект на сторінку monopay → після оплати повернення на `/order/{n}/success`. Статус (`paymentStatus`) оновлюється **вебхуком** (`X-Sign`) або **поллінгом** зі сторінки успіху; кнопка «Перейти до оплати / Спробувати ще раз» для несплачених. LiqPay можливий як другий провайдер того самого методу.
 - **FR-6.4:** Можливість оформити без реєстрації (гостьовий checkout).
 - **FR-6.5:** Підтвердження → лист на email + статус замовлення.
 - **FR-6.6:** Валідація всіх полів, обробка помилок платежу.
@@ -236,6 +237,7 @@
 | GET | `/api/orders/:number` | **Публічний** статус замовлення — лише безпечні поля (`orderNumber`, `status`, `total`, `createdAt`, `payment`) ✅ |
 | GET | `/api/orders?status=&paymentStatus=&q=&page=&limit=` · GET `/api/orders/id/:id` · PATCH `/api/orders/:id/status` · PATCH `/api/orders/:id/payment-status` | **Admin**: список (фільтр за статусом/статусом оплати; `q` — пошук за номером/телефоном/email; пагінація), деталка, зміна статусу (скасування повертає залишки) та статусу оплати ([ADR-0013](adr/0013-order-status-method-columns.md)) ✅ |
 | GET | `/api/payment-requisites/active` | **Публічні** реквізити активного IBAN-каналу (без секретів) — для checkout/сторінки успіху ✅ |
+| POST | `/api/payments/monopay/invoice` · POST `/api/payments/monopay/webhook` · GET `/api/payments/monopay/status/:orderNumber` | Онлайн-оплата monopay: створення інвойсу (→ `pageUrl`), вебхук статусів (`X-Sign`), поллінг статусу ([ADR-0015](adr/0015-monopay-online-payment.md)) ✅ |
 | POST | `/api/auth/register` / `login` / `refresh` / `logout` · GET `/me` | Аутентифікація (JWT cookie) ✅ |
 | GET | `/api/account/orders` | Замовлення користувача (auth, новіші першими) ✅ |
 | POST | `/api/leads` | Заявки всіх типів (fitment / contact / price_match / price_subscribe) — публічно ✅ |
@@ -340,6 +342,7 @@ orders(
   delivery_method text,                    -- np|ukrposhta|pickup (ADR-0013)
   payment_method  text,                    -- card|cod|iban|cash (ADR-0013)
   payment_status  text,                    -- pending|paid|failed|refunded (ADR-0013), індекс
+  payment_invoice_id text null,            -- ID інвойсу monopay для звірки/вебхука (ADR-0015), індекс
   total numeric, status text,              -- new|processing|shipped|done|canceled
   is_one_click boolean, comment text, created_at
 )
@@ -387,7 +390,7 @@ blog_posts(id PK, slug unique, title, excerpt, content, cover_image, author, cat
 
 ## 8. Відкриті питання
 
-1. ~~Який саме еквайринг?~~ → **Вирішено: LiqPay** ([ADR-0008](adr/0008-payment-requisites-channels.md)).
+1. ~~Який саме еквайринг?~~ → **Вирішено: monopay (Monobank acquiring)** ([ADR-0015](adr/0015-monopay-online-payment.md)); реалізовано. LiqPay — можливий другий провайдер того самого методу `card`.
 2. Чи потрібна інтеграція з Укрпоштою API окремо, чи лише Нова Пошта в MVP?
 3. Чи є джерело даних сумісності (VIN → перелік деталей), щоб реалізувати VIN-підбір автоматично?
 4. ~~Старі ціни — ручне поле чи правила?~~ → **Вирішено: ручне поле `oldPrice` + прапорець `onSale`** (показ знижки керується вручну).

@@ -70,6 +70,7 @@ erDiagram
     enum   deliveryMethod
     enum   paymentMethod
     enum   paymentStatus
+    string paymentInvoiceId
     decimal total
     enum   status
   }
@@ -300,6 +301,7 @@ model Order {
   deliveryMethod DeliveryMethod @map("delivery_method")    // винесено з delivery.method (ADR-0013)
   paymentMethod  PaymentMethod  @map("payment_method")     // винесено з payment.method (ADR-0013)
   paymentStatus  PaymentStatus  @default(pending) @map("payment_status") // винесено з payment.status (ADR-0013)
+  paymentInvoiceId String?    @map("payment_invoice_id")     // ID інвойсу monopay для звірки/вебхука (ADR-0015)
   total       Decimal     @db.Decimal(12, 2)
   status      OrderStatus @default(new)
   isOneClick  Boolean     @default(false) @map("is_one_click")
@@ -309,6 +311,7 @@ model Order {
   @@index([userId])
   @@index([status])
   @@index([paymentStatus])                                 // фільтр «неоплачені» в адмінці
+  @@index([paymentInvoiceId])                              // привʼязка вебхука monopay до замовлення (ADR-0015)
   // пошук за customer.phone/email — trigram GIN на JSON-виразі (raw-міграція, див. §Індекси)
   @@map("orders")
 }

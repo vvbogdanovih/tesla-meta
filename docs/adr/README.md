@@ -27,3 +27,4 @@
 | [0012](0012-wishlist-auth-crm.md) | Обране (wishlist) — авторизований сигнал інтересу для CRM | Accepted | 01.07.2026 |
 | [0013](0013-order-status-method-columns.md) | Order: статус/методи оплати й доставки та пошук контактів — окремі колонки | Accepted | 02.07.2026 |
 | [0014](0014-nova-poshta-directory-mirror.md) | Nova Poshta: дзеркало довідника в БД + синхронізація (cron + кнопка) | Accepted | 02.07.2026 |
+| [0015](0015-monopay-online-payment.md) | Онлайн-оплата карткою через monopay: токен у БД, метод `card`, вебхук + поллінг | Accepted | 05.07.2026 |

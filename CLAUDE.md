@@ -46,6 +46,7 @@ repos/                         # робочі копії app-репо (поза 
 - **0012** — **обране (wishlist)**: авторизований сигнал інтересу (модель `WishlistItem`), ♡ лише для залогінених; адмінам видно попит/контакти під розділом «Ліди».
 - **0013** — **Order**: `paymentStatus`/`paymentMethod`/`deliveryMethod` винесено з JSON у колонки (+ trigram-пошук за телефоном/email); `payment` jsonb прибрано (була порожня); `customer`/`delivery` — лише снапшот; форма API незмінна (композиться з колонок).
 - **0014** — **Nova Poshta**: дзеркало довідника (`np_cities`/`np_warehouses`) у БД; автопідказки в чекауті — зі своєї бази; синхронізація cron (`RUN_CRON`) + кнопка superadmin у розділі «Налаштування»; тип відділення `branch/postomat/cargo`.
+- **0015** — **monopay** (Monobank acquiring): онлайн-оплата карткою (метод `card`); токен `X-Token` у `PaymentRequisite.monopayToken` (зашифровано), не env; інвойс → `pageUrl` → вебхук (`X-Sign`) / поллінг оновлюють `Order.paymentStatus`; `Order.paymentInvoiceId` привʼязує колбек; `API_PUBLIC_URL` — для `webHookUrl`.
 
 ## Conventions
 
