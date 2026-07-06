@@ -1,9 +1,11 @@
 # SEO-стратегія — Tesla Lviv
 
-**Версія:** 1.0
-**Дата:** 27.06.2026
+**Версія:** 1.1
+**Дата:** 06.07.2026
 **Статус:** Draft
-**Пов'язано:** [PRD](PRD.md) · [FRD](FRD.md) · [Аудит сайту](current-site-audit.md) · [ADR-0001](adr/0001-url-structure-and-redirects.md)
+**Пов'язано:** [PRD](PRD.md) · [FRD](FRD.md) · [Аудит сайту](current-site-audit.md) · [ADR-0001](adr/0001-url-structure-and-redirects.md) · [ADR-0011](adr/0011-price-sheet-table-view.md) · [ADR-0012](adr/0012-wishlist-auth-crm.md)
+
+> **v1.1 (06.07.2026):** додано правила індексації `/price-sheet` (§4.1b) і `/wishlist` (noindex), уточнено canonical `/shop` під поточну реалізацію (query-параметр `?category=`).
 
 > **Головна теза.** SEO чинного сайту вже компетентне (повний Product schema, sitemap товарів/категорій, canonical, OG, коректний robots — див. [аудит](current-site-audit.md)). Тому пріоритет №1 — **не втратити при міграції** (паритет), і лише потім — приріст. «Бути першими» гарантувати неможливо; ми максимізуємо те, що в нашій владі: технічна досконалість, покриття long-tail і швидкість.
 
@@ -123,6 +125,18 @@
 - Індексовані фасети → **чистий шлях** + self-canonical + запис у sitemap + унікальні title/H1.
 - Неіндексовані → **query-параметри** (`?inStock=true&minPrice=…`), `noindex,follow`, canonical на чисту базову сторінку.
 - У `robots.txt` **не** блокувати фасети-параметри (хай бот бачить `noindex` і не вважає їх «зниклими»); керувати індексацією через meta-тег, а не Disallow.
+
+**Поточна реалізація (`/shop`):** чистих категорійних шляхів (`/category/...`) у коді ще немає — категорія передається query-параметром `?category=`. Тому зараз: базова `/shop` і `/shop?category=x` → **index**, canonical на відповідну базу; будь-який інший фасет (`car`, `sort`, `inStock`, `minPrice/maxPrice`, `type`, `condition`, `page>1`) → **noindex,follow** + canonical на базу. Перехід на чисті ЧПУ категорій — окрема задача (ADR-0001), після якої canonical переведемо на чистий шлях.
+
+### 4.1b Прайс-лист (`/price-sheet`, ADR-0011)
+
+`/price-sheet` — табличний вигляд того самого каталогу (`GET /catalog/products`), ризик дубль-контенту з `/shop`. Рішення (ADR-0011 «власне SEO»):
+
+- **База `/price-sheet`** (без параметрів) → **index, self-canonical**, у sitemap. Окремі `title`/`H1` під інтент «прайс-лист / price list» + вступний абзац — щоб не був тонким дублем `/shop`.
+- **Будь-який фасет-параметр** (`q`, `category`, `car`, `type`, `condition`, `inStock`, `minPrice/maxPrice`, `sort`) → **noindex,follow**, canonical на базову `/price-sheet`.
+- Отже — **рівно одна індексована** price-sheet-URL; категорійні/фасетні index-сторінки належать `/shop`, price-sheet їх не дублює. Пагінаційного `?page` немає (нескінченний скрол).
+
+`/wishlist` — **noindex** (приватний сигнал інтересу, ADR-0012).
 
 ### 4.2 Контент і запити
 
