@@ -277,16 +277,19 @@ model User {
 }
 
 model Address {
-  id        BigInt         @id @default(autoincrement())
-  userId    BigInt         @map("user_id")
-  user      User           @relation(fields: [userId], references: [id], onDelete: Cascade)
-  label     String?
-  method    DeliveryMethod
-  city      String?
-  warehouse String?
-  recipient String?
-  phone     String?
-  isDefault Boolean        @default(false) @map("is_default")
+  id            BigInt         @id @default(autoincrement())
+  userId        BigInt         @map("user_id")
+  user          User           @relation(fields: [userId], references: [id], onDelete: Cascade)
+  label         String?
+  method        DeliveryMethod
+  city          String?                                          // людиночитабельний лейбл міста
+  warehouse     String?                                          // людиночитабельний лейбл відділення
+  cityRef       String?        @map("city_ref")                  // НП-референс міста — для відновлення combobox і ТТН (ADR-0017)
+  warehouseRef  String?        @map("warehouse_ref")             // НП-референс відділення/поштомата
+  warehouseType String?        @map("warehouse_type")            // branch | postomat | cargo (ADR-0014)
+  recipient     String?
+  phone         String?
+  isDefault     Boolean        @default(false) @map("is_default")
   @@map("addresses")
 }
 

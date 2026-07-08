@@ -28,3 +28,5 @@
 | [0013](0013-order-status-method-columns.md) | Order: статус/методи оплати й доставки та пошук контактів — окремі колонки | Accepted | 02.07.2026 |
 | [0014](0014-nova-poshta-directory-mirror.md) | Nova Poshta: дзеркало довідника в БД + синхронізація (cron + кнопка) | Accepted | 02.07.2026 |
 | [0015](0015-monopay-online-payment.md) | Онлайн-оплата карткою через monopay: токен у БД, метод `card`, вебхук + поллінг | Accepted | 05.07.2026 |
+| [0016](0016-erp-1c-integration.md) | Інтеграція з 1С — сайт-ініціатор: pull наявності/цін, push замовлень (ідемпотентно) | Accepted | 06.07.2026 |
+| [0017](0017-saved-delivery-addresses.md) | Збережені адреси доставки — лише для авторизованих (`Address` + НП-референси) | Accepted | 07.07.2026 |

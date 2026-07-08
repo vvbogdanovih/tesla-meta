@@ -47,6 +47,8 @@ repos/                         # робочі копії app-репо (поза 
 - **0013** — **Order**: `paymentStatus`/`paymentMethod`/`deliveryMethod` винесено з JSON у колонки (+ trigram-пошук за телефоном/email); `payment` jsonb прибрано (була порожня); `customer`/`delivery` — лише снапшот; форма API незмінна (композиться з колонок).
 - **0014** — **Nova Poshta**: дзеркало довідника (`np_cities`/`np_warehouses`) у БД; автопідказки в чекауті — зі своєї бази; синхронізація cron (`RUN_CRON`) + кнопка superadmin у розділі «Налаштування»; тип відділення `branch/postomat/cargo`.
 - **0015** — **monopay** (Monobank acquiring): онлайн-оплата карткою (метод `card`); токен `X-Token` у `PaymentRequisite.monopayToken` (зашифровано), не env; інвойс → `pageUrl` → вебхук (`X-Sign`) / поллінг оновлюють `Order.paymentStatus`; `Order.paymentInvoiceId` привʼязує колбек; `API_PUBLIC_URL` — для `webHookUrl`.
+- **0016** — **інтеграція з 1С**: сайт-ініціатор (1С — HTTP-сервер, сайт — клієнт «дьоргає»); контракт site-agnostic (1С налаштовується раз → N сайтів). Наявність + базова ціна — pull cron у `Product.stockQty`/кеш (знижку рахує сайт); замовлення — push у 1С одразу після створення, **ідемпотентно** за `externalId`; статус/оплата — сайт джерело, push у 1С. Ключ матчингу — `sku`. Повне ТЗ: `docs/integration-1c.md`.
+- **0017** — **збережені адреси доставки**: лише для авторизованих (модель `Address`); у checkout — картки-радіо збережених адрес + «Нова адреса» з чекбоксом «Зберегти в профіль» (перша → `isDefault`); профіль — CRUD адрес; `Address` розширено НП-референсами `cityRef`/`warehouseRef`/`warehouseType` (відновлення combobox + ТТН); снапшот `Order.delivery` незалежний (ADR-0013); гість — без збереження, лише нудж на вхід.
 
 ## Conventions
 
