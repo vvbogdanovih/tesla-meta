@@ -1,4 +1,4 @@
-# Frontend: мертвий код, зайві залежності, хардкоди
+# Frontend: зайві залежності, хардкоди
 
 - **Пріоритет:** P3 — бажане (гігієна)
 - **Репозиторій:** tesla-frontend
@@ -6,9 +6,8 @@
 
 ## Список
 
-1. **Мертві константи** — `api-routes.constants.ts`: `CART`, `ORDERS`, `NOVA_POSHTA`, `BLOG`, `ACCOUNT.PROFILE/ADDRESSES`, `LEADS.PRICE_MATCH/PRICE_SUBSCRIBE`; `ui-routes.constants.ts`: `CATEGORY`/`SUBCATEGORY` (маршрут не існує), `PRIVACY`, `OFFER`.
-2. **Зайві залежності** — `sharp` марний при `unoptimized: true`; `@tanstack/react-query-devtools` не підключено; `radix-ui`, `react-icons`, `class-variance-authority` — використання мінімальне/нульове.
-3. **`Pagination.tsx:20` хардкодить `/shop`** — компонент непереносний.
-4. **Хардкоди в UI** — «Понад 1000», «1000+ позицій», «Visa · Mastercard · накладений», email/©2026 у Footer — кандидати на ContentBlock (ADR-0009).
-5. **LeadButton валідується інакше ніж auth-сторінки** — ручний `useState`-form без zod проти RHF+zod; уніфікувати.
-6. **Гість ловить 401→refresh на кожен візит** — `http.service.ts:22-31`: `checkAuth` для анонімного користувача завжди тригерить зайвий refresh-запит.
+1. **Зайві залежності** — `sharp` (марний при `unoptimized: true`), `@tanstack/react-query-devtools`, `radix-ui`, `react-icons` — не використовуються в `src/` (`class-variance-authority` використовується — `ui/button.tsx`). Мертва константа `BLOG` в `api-routes.constants.ts`.
+2. **Хардкоди в UI** — «Понад 1000» (`src/app/page.tsx:148`), email/місто/©2026 у Footer (`Footer.tsx:14`) — кандидати на ContentBlock (ADR-0009).
+3. **LeadButton валідується інакше ніж auth-сторінки** — ручний `useState`-form без zod (`LeadButton.tsx:27-35`) проти RHF+zod у checkout; уніфікувати.
+
+> Виконано раніше (перевірено 15.07): константи `CART`/`ORDERS`/`NOVA_POSHTA`/`ACCOUNT.*`/`LEADS.PRICE_*` тепер використовуються (checkout, NP-picker, профіль/адреси); `ui-routes` почищено; хардкод `/shop` у Pagination — коректний для поточного використання; зайвий guest-refresh у `http.service.ts` виправлено (дедуплікація `refreshPromise`).

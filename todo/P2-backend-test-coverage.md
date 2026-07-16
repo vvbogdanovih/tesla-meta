@@ -1,4 +1,4 @@
-# Тестами покрито 3 модулі з 13 — orders (найризиковіший) без тестів
+# Тестами покрито 5 модулів з ~18 — payment-requisites (шифрування) без тестів
 
 - **Пріоритет:** P2 — важливий (якість)
 - **Репозиторій:** tesla-backend
@@ -6,16 +6,17 @@
 
 ## Проблема
 
-Unit і e2e (Testcontainers) є лише для auth/catalog/products (~530 рядків). Нуль тестів: **orders** (гроші, залишки, статуси), leads, wishlist, payment-requisites (шифрування!), s3, content-blocks, cars, categories, stats.
+Unit-spec є для auth/catalog/products/orders/payments; e2e (Testcontainers) — auth/catalog/products. Нуль тестів: **payment-requisites** (шифрування!), wishlist, leads, addresses, profile, s3, content-blocks, cars, categories, stats, delivery-np.
 
 ## Де в коді
 
-- `test/`, `src/**/*.spec.ts` — покриті лише 3 модулі
+- `test/`, `src/**/*.spec.ts` — 5 модулів з ~18
 
 ## Що зробити
 
 Пріоритет покриття:
-1. **orders** — створення (знімок цін, транзакція залишків після фіксу P1-backend-orders-oversell), зміна статусу, публічний доступ за номером.
-2. **payment-requisites** — шифрування/маскування секретів (`toSafe`, write-only), доступ superadmin-only.
-3. **wishlist** — ідемпотентність, guards.
-Інфраструктура (jest + Testcontainers) вже налаштована — треба лише дописати сьюти.
+1. **payment-requisites** — шифрування/маскування секретів (`toSafe`, write-only), доступ superadmin-only.
+2. **wishlist** — ідемпотентність, guards.
+3. **addresses/profile** — нові CRUD (ADR-0017): ownership, `isDefault`, зміна пароля.
+
+Також переглянути повноту наявного `orders.spec` (знімок цін, транзакція залишків, скасування). Інфраструктура (jest + Testcontainers) вже налаштована — треба лише дописати сьюти.
