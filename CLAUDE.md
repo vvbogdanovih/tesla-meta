@@ -14,7 +14,7 @@ docs/
 ├── design-principles.md       # дизайн-система: токени, типографіка, контейнер
 ├── db-schema.md               # Prisma-схема + ER-діаграма
 ├── backend-architecture.md
-├── adr/                       # Architecture Decision Records (0000-template + 0001..0006)
+├── adr/                       # Architecture Decision Records (0000-template + 0001..0017)
 └── assets/                    # живі HTML-референси сторінок + logo.png + hero
 scripts/clone-repos.sh         # клонує 3 app-репо у repos/ (gitignored)
 repos/                         # робочі копії app-репо (поза git)
@@ -39,7 +39,7 @@ repos/                         # робочі копії app-репо (поза 
 - **0005** — порядок реалізації: адмінка спершу.
 - **0006** — rich text: TipTap, зберігати **JSON** (джерело правди) + **HTML** (санітизований, для SSR).
 - **0007** — зображення: конвертація у **AVIF** на бекенді (sharp), проксі-аплоад.
-- **0008** — реквізити продавця + канали **IBAN/LiqPay**; приватний ключ зашифровано, доступ superadmin.
+- **0008** — реквізити продавця + канали **IBAN/LiqPay/monopay**; секрети зашифровано, доступ superadmin.
 - **0009** — наскрізні тексти (гарантія/доставка) — сутність **ContentBlock**, не поля товару.
 - **0010** — єдина сутність **User + роль** (без розділення профілів).
 - **0011** — **price-sheet**: табличний вигляд каталогу (`/price-sheet`), той самий ендпоінт `+ include=fitment`, нескінченний скрол.

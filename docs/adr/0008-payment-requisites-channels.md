@@ -1,9 +1,9 @@
-# ADR-0008: Реквізити продавця та канали оплати (IBAN / LiqPay)
+# ADR-0008: Реквізити продавця та канали оплати (IBAN / LiqPay / monopay)
 
 - **Статус:** Accepted
 - **Дата:** 29.06.2026
 - **Автори:** команда проєкту
-- **Пов'язано:** [db-schema.md](../db-schema.md) · [FRD §3.7](../FRD.md)
+- **Пов'язано:** [db-schema.md](../db-schema.md) · [FRD §3.7](../FRD.md) · [ADR-0015](0015-monopay-online-payment.md) (monopay-канал: потік оплати)
 
 ## Контекст
 

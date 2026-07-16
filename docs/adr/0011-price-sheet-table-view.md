@@ -3,7 +3,7 @@
 - **Статус:** Accepted
 - **Дата:** 01.07.2026
 - **Автори:** команда проєкту
-- **Пов'язано:** [ADR-0002](0002-catalog-compatibility-architecture.md) (каталог/сумісність) · [FRD §3.12](../FRD.md) · [db-schema.md](../db-schema.md)
+- **Пов'язано:** [ADR-0002](0002-catalog-compatibility-architecture.md) (каталог/сумісність) · [FRD §3.3a (FR-2.8–2.13)](../FRD.md) · [db-schema.md](../db-schema.md)
 
 ## Контекст
 

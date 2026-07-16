@@ -1,8 +1,8 @@
 # FRD — Tesla Lviv (нова версія)
 
 **Документ:** Functional Requirements Document
-**Версія:** 1.2
-**Дата:** 27.06.2026
+**Версія:** 1.3
+**Дата:** 16.07.2026
 **Стек:** Next.js · NestJS · **PostgreSQL** · S3
 **Супровідний документ:** [PRD.md](PRD.md)
 **Архітектурні рішення:** [ADR-0002](adr/0002-catalog-compatibility-architecture.md) (каталог/сумісність) · [ADR-0003](adr/0003-database-postgresql.md) (PostgreSQL)
@@ -232,7 +232,7 @@
 | `*` | `/api/categories` (POST/PATCH/DELETE) | **Admin** CRUD категорій ✅ |
 | GET | `/api/categories/:slug/products?car=` | Товари категорії (опц. фільтр за авто) *(план)* |
 | GET/PATCH | `/api/content-blocks` / `:key` | Наскрізні тексти (гарантія/доставка); PATCH — admin ✅ |
-| `*` | `/api/payment-requisites` | Реквізити продавця (IBAN/LiqPay) — **superadmin** ✅ |
+| `*` | `/api/payment-requisites` | Реквізити продавця (IBAN/LiqPay/monopay, [ADR-0008](adr/0008-payment-requisites-channels.md)) — **superadmin** ✅ |
 | POST | `/api/s3/upload` | Завантаження зображення → AVIF (admin) ✅ |
 | POST | `/api/cart` / `PATCH` / `DELETE` | Операції з кошиком *(план)* |
 | POST | `/api/orders` | **Публічне** оформлення замовлення (гість або auth; транзакційне списання `stockQty`, ціни — знімок із БД) ✅ |
@@ -248,7 +248,10 @@
 | POST/DELETE | `/api/account/wishlist/:productId` | Додати/прибрати товар в обране (auth, ідемпотентно) ✅ |
 | GET | `/api/admin/wishlist?productId=&page=&limit=` | **Admin**: записи обраного (клієнт+контакт+товар+дата) + `topProducts` (найбажаніші) ([ADR-0012](adr/0012-wishlist-auth-crm.md)) ✅ |
 | GET | `/api/blog` / `/api/blog/:slug` | Блог *(план)* |
-| GET | `/api/delivery/np/cities` / `/warehouses` | Проксі до API Нової Пошти *(план)* |
+| GET | `/api/delivery/np/cities?q=` · GET `/api/delivery/np/warehouses?cityRef=&type=&q=` | **Публічні** автопідказки міст/відділень НП у чекауті — зі свого дзеркала БД (`np_cities`/`np_warehouses`), не з API Пошти на кожен запит ([ADR-0014](adr/0014-nova-poshta-directory-mirror.md)) ✅ |
+| POST | `/api/delivery/np/sync` · GET `/api/delivery/np/sync-status` | **Superadmin**: ручний запуск синхронізації дзеркала НП + стан останньої синхронізації (крім cron за `RUN_CRON`) ✅ |
+| GET | `/api/admin/stats` | **Admin**: метрики дашборда адмінки ✅ |
+| GET | `/api/health` | Health-check сервісу (`{ status, service, ts }`) — публічно ✅ |
 
 > ✅ — реалізовано (admin-first, [ADR-0005](adr/0005-implementation-order-admin-first.md)); *план* — наступні ітерації (публічний сторфронт). Адмін-ендпоінти захищені роллю; `payment-requisites` — лише superadmin.
 
@@ -331,7 +334,12 @@ product_fitment(
 
 ### product_images / related
 ```
-product_images(id PK, product_id FK, url, alt, sort_order)   -- S3 URLs
+product_images(
+  id PK, product_id FK, url,             -- S3/R2 URL (AVIF, ADR-0007)
+  thumb_url text null,                   -- 400px AVIF-мініатюра; null → фронт бере url
+  alt, sort_order,
+  is_live boolean default false          -- false = студійна галерея; true = «живі фото» екземпляра
+)
 product_related(product_id FK, related_id FK → products.id, PK(product_id, related_id))
 ```
 
@@ -355,7 +363,26 @@ order_items(id PK, order_id FK, product_id FK, name, sku, price, qty)
 ### users / addresses
 ```
 users(id PK, email unique, phone, password_hash, first_name, last_name, role, created_at)
-addresses(id PK, user_id FK, label, method, city, warehouse, recipient)
+addresses(
+  id PK, user_id FK,                       -- on delete cascade, індекс (user_id)
+  label, method,                           -- np|ukrposhta|pickup
+  city, warehouse,                         -- людиночитабельні лейбли
+  city_ref, warehouse_ref,                 -- НП-референси — відновлення combobox + ТТН (ADR-0017)
+  warehouse_type text null,                -- branch|postomat|cargo (ADR-0014)
+  recipient, phone,
+  is_default boolean default false         -- основна адреса (ADR-0017)
+)
+```
+
+### wishlist_items — обране (ADR-0012, лише авторизовані)
+```
+wishlist_items(
+  user_id    FK → users.id,              -- on delete cascade
+  product_id FK → products.id,           -- on delete cascade
+  created_at,
+  PRIMARY KEY (user_id, product_id)      -- toggle ідемпотентний (upsert/delete)
+)
+-- індекси: (product_id) — адмін: попит «хто хоче цей товар»; (user_id, created_at) — сторінка обраного
 ```
 
 ### leads
@@ -373,7 +400,7 @@ leads(
 blog_posts(id PK, slug unique, title, excerpt, content, cover_image, author, category, published_at, seo jsonb)
 ```
 
-> Запит «товари для авто X»: `products JOIN product_fitment ON … WHERE car_id = :id [AND system_id = :sys]`. VIN-підбір (Фаза 3): VIN → `cars` → сумісні товари.
+> Запит «товари для авто X»: `products JOIN product_fitment ON … WHERE car_id = :id` (звуження за категорією — звичайний `products.category_id`). VIN-підбір (Фаза 3): VIN → `cars` → сумісні товари.
 
 ---
 

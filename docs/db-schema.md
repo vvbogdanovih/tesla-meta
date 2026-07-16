@@ -1,7 +1,7 @@
 # Модель бази даних — Tesla Lviv (PostgreSQL + Prisma)
 
-**Версія:** 1.1
-**Дата:** 27.06.2026
+**Версія:** 1.3
+**Дата:** 16.07.2026
 **Статус:** Draft
 **Пов'язано:** [FRD §6](FRD.md) · [ADR-0002](adr/0002-catalog-compatibility-architecture.md) (каталог/сумісність) · [ADR-0003](adr/0003-database-postgresql.md) (PostgreSQL)
 
@@ -21,6 +21,7 @@ erDiagram
   Order           ||--o{ OrderItem      : "позиції"
   User            ||--o{ Order          : "замовлення"
   User            ||--o{ Address        : "адреси"
+  User            ||--o{ RefreshSession : "refresh-сесії"
   Product         ||--o{ Lead           : "по товару"
   User            ||--o{ WishlistItem   : "обране"
   Product         ||--o{ WishlistItem   : "обране"
@@ -94,6 +95,11 @@ erDiagram
     string city
     string warehouse
   }
+  RefreshSession {
+    string jti PK
+    bigint userId FK
+    datetime expiresAt
+  }
   Lead {
     bigint id PK
     enum   type
@@ -114,12 +120,14 @@ erDiagram
 
 ```prisma
 generator client {
-  provider = "prisma-client-js"
+  provider        = "prisma-client-js"
+  previewFeatures = ["postgresqlExtensions"]
 }
 
 datasource db {
-  provider = "postgresql"
-  url      = env("DATABASE_URL")
+  provider   = "postgresql"
+  url        = env("DATABASE_URL")
+  extensions = [pg_trgm]                                    // нечіткий пошук (trigram), див. §3
 }
 
 // ───────── Enums ─────────
@@ -192,6 +200,9 @@ model Product {
   @@index([categoryId])
   @@index([isActive, stockQty])
   @@index([price])
+  // Пошук за назвою/артикулом (FR-4.1) — trigram GIN, нативно в Prisma (див. §3)
+  @@index([name(ops: raw("gin_trgm_ops"))], type: Gin)
+  @@index([sku(ops: raw("gin_trgm_ops"))], type: Gin)
   @@map("products")
 }
 
@@ -212,7 +223,8 @@ model ProductImage {
   id        BigInt  @id @default(autoincrement())
   productId BigInt  @map("product_id")
   product   Product @relation(fields: [productId], references: [id], onDelete: Cascade)
-  url       String                                         // S3 URL
+  url       String                                         // S3 URL (AVIF 1600px)
+  thumbUrl  String? @map("thumb_url")                      // 400px AVIF-мініатюра; null → фронт бере url (старі записи)
   alt       String?
   sortOrder Int     @default(0) @map("sort_order")         // порядок у межах свого набору
   isLive    Boolean @default(false) @map("is_live")        // false = студійна галерея; true = «живі фото» (реальні знімки екземпляра, окремий блок на сторінці товару)
@@ -273,7 +285,19 @@ model User {
   orders       Order[]
   leads        Lead[]
   wishlist     WishlistItem[]
+  refreshSessions RefreshSession[]
   @@map("users")
+}
+
+// Активні refresh-сесії — ротація/відкликання refresh-токенів. Рядок = один чинний refresh-токен.
+model RefreshSession {
+  jti       String   @id
+  userId    BigInt   @map("user_id")
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  expiresAt DateTime @map("expires_at")
+  createdAt DateTime @default(now()) @map("created_at")
+  @@index([userId])
+  @@map("refresh_sessions")
 }
 
 model Address {
@@ -286,10 +310,11 @@ model Address {
   warehouse     String?                                          // людиночитабельний лейбл відділення
   cityRef       String?        @map("city_ref")                  // НП-референс міста — для відновлення combobox і ТТН (ADR-0017)
   warehouseRef  String?        @map("warehouse_ref")             // НП-референс відділення/поштомата
-  warehouseType String?        @map("warehouse_type")            // branch | postomat | cargo (ADR-0014)
+  warehouseType NpWarehouseType? @map("warehouse_type")          // branch | postomat | cargo (ADR-0014)
   recipient     String?
   phone         String?
   isDefault     Boolean        @default(false) @map("is_default")
+  @@index([userId])
   @@map("addresses")
 }
 
@@ -445,29 +470,28 @@ model NpSyncState {
 ## 3. Індекси та пошук
 
 - Базові індекси задано в схемі через `@@index` / `@unique` (category, price, isActive+stockQty, fitment.carId, orders.status/paymentStatus/userId, leads.status+type).
-- **Пошук за назвою та артикулом** (FR-4.1) — трграмні GIN-індекси `pg_trgm`. Prisma не виражає `gin_trgm_ops` у схемі, тому додаємо **raw-міграцією**:
+- **Пошук за назвою та артикулом** (FR-4.1) — трграмні GIN-індекси `pg_trgm`, виражені **нативно у Prisma-схемі** (preview-фіча `postgresqlExtensions`): розширення вмикається в `datasource` (`extensions = [pg_trgm]`), клас оператора — через `ops: raw(...)`:
 
-```sql
--- prisma/migrations/<ts>_trgm/migration.sql
-CREATE EXTENSION IF NOT EXISTS pg_trgm;
-CREATE INDEX idx_products_name_trgm ON products USING gin (name gin_trgm_ops);
-CREATE INDEX idx_products_sku_trgm  ON products USING gin (sku  gin_trgm_ops);
--- за потреби: GIN на attributes (jsonb)
-CREATE INDEX idx_products_attrs ON products USING gin (attributes);
+```prisma
+// schema.prisma — фрагмент model Product
+@@index([name(ops: raw("gin_trgm_ops"))], type: Gin)
+@@index([sku(ops: raw("gin_trgm_ops"))], type: Gin)
 ```
 
-- **Пошук замовлень за контактом** (адмінка, ADR-0013) — trigram GIN на JSON-виразах `customer->>'phone'` / `customer->>'email'` (той самий підхід — raw-міграція):
+  За потреби окремо (raw-міграцією): `CREATE INDEX idx_products_attrs ON products USING gin (attributes);` — GIN на jsonb-характеристики.
+
+- **Пошук замовлень за контактом** (адмінка, ADR-0013) — trigram GIN на **JSON-виразах** `customer->>'phone'` / `customer->>'email'`. Індекси на виразах Prisma виразити не може — це справді **raw-міграція** (коментар у моделі `Order`):
 
 ```sql
-CREATE INDEX orders_customer_phone_idx ON orders USING gin ((customer ->> 'phone') gin_trgm_ops);
-CREATE INDEX orders_customer_email_idx ON orders USING gin ((customer ->> 'email') gin_trgm_ops);
+CREATE INDEX orders_customer_phone_idx ON orders USING GIN (("customer" ->> 'phone') gin_trgm_ops);
+CREATE INDEX orders_customer_email_idx ON orders USING GIN (("customer" ->> 'email') gin_trgm_ops);
 ```
 
-- **Автопідказки Нової Пошти** (чекаут, ADR-0014) — trigram GIN на назві міста та адресі відділення:
+- **Автопідказки Нової Пошти** (чекаут, ADR-0014) — trigram GIN на назві міста та адресі відділення; наразі теж **raw-міграцією** (історично; це звичайні колонки — за бажання можна перенести в схему тим самим нативним синтаксисом, що й у `Product`):
 
 ```sql
-CREATE INDEX np_cities_name_trgm_idx ON np_cities USING gin (name gin_trgm_ops);
-CREATE INDEX np_warehouses_description_trgm_idx ON np_warehouses USING gin (description gin_trgm_ops);
+CREATE INDEX np_cities_name_trgm_idx ON np_cities USING GIN ("name" gin_trgm_ops);
+CREATE INDEX np_warehouses_description_trgm_idx ON np_warehouses USING GIN ("description" gin_trgm_ops);
 ```
 
 ---
