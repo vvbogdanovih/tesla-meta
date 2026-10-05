@@ -1,0 +1,17 @@
+{
+	"folders": [
+		{
+			"path": "."
+		},
+		{
+			"path": "repos/tesla-backend"
+		},
+		{
+			"path": "repos/tesla-frontend"
+		},
+		{
+			"path": "repos/tesla-admin"
+		}
+	],
+	"settings": {}
+}
